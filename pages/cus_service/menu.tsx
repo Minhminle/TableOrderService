@@ -16,29 +16,68 @@ import {
   Box,
   Button,
   Grid,
-  List,
   ListItem,
-  ListItemAvatar,
-  ListItemText,
   Stack,
   Typography,
-  colors,
 } from "@mui/material";
 
+// class User {
+//   name: string;
+//   dob: string;
+//   classRef: DocumentReference;
+//   // classId: string
+//   constructor(name: string, dob: string, classRef: DocumentReference) {
+//     this.name = name;
+//     this.dob = dob;
+//     this.classRef = classRef;
+//   }
+// }
+
+// class UserClass {
+//   name: string;
+//   constructor(name: string) {
+//     this.name = name;
+//   }
+// }
+// const userConverter = {
+//   toFirestore: (user: User) => {
+//     return {
+//       name: user.name,
+//       state: user.dob,
+//       class: user.classRef,
+//     };
+//   },
+
+//   fromFirestore: (
+//     snapshot: QueryDocumentSnapshot<DocumentData, DocumentData>,
+//     options: SnapshotOptions
+//   ) => {
+//     const data = snapshot.data(options);
+//     return new User(data.name, data.dob, data.class);
+//   },
+// };
+
+// const classConverter = {
+//   toFirestore: (obj: UserClass) => {
+//     return {
+//       name: obj.name,
+//     };
+//   },
+//   fromFirestore: (
+//     snapshot: QueryDocumentSnapshot<DocumentData, DocumentData>,
+//     options: SnapshotOptions
+//   ) => {
+//     const data = snapshot.data(options);
+//     return new UserClass(data.name);
+//   },
+// };
+
 class Menu {
-  id: string;
   name: string;
   price: number;
   path: string;
   type: string;
-  constructor(
-    id: string,
-    name: string,
-    price: number,
-    path: string,
-    type: string
-  ) {
-    this.id = id;
+  constructor(name: string, price: number, path: string, type: string) {
     this.name = name;
     this.price = price;
     this.path = path;
@@ -48,6 +87,30 @@ class Menu {
 
 const Home = () => {
   const [menus, setMenus] = useState<Menu[]>([]);
+  const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [showMenuDetail, sethSowMenuDetail] = useState<boolean>(false);
+  const [showTypeList, setShowTypeList] = useState(false);
+  const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
+  const [selectedType, setSelectedType] = useState("All");
+  const handleTypeClick = () => {
+    setShowTypeList(!showTypeList);
+    setShowMenu(false);
+    sethSowMenuDetail(false);
+    setSelectedType("All");
+  };
+  const handleAllClick = () => {
+    setShowMenu(true);
+    setShowTypeList(false);
+    sethSowMenuDetail(false);
+  };
+  const handleTypeDetailClick = (type: string) => {
+    const filteredMenuItems = menus.filter((menu) => menu.type === type);
+    setSelectedMenuItems(filteredMenuItems);
+    setShowMenu(false);
+    setShowTypeList(false);
+    sethSowMenuDetail(true);
+    setSelectedType(type);
+  };
 
   useEffect(() => {
     const firebaseConfig = {
@@ -68,7 +131,7 @@ const Home = () => {
         const menuSnapshot = await getDocs(menuCollection);
         const menuList = menuSnapshot.docs.map((doc) => {
           const data = doc.data();
-          return new Menu(doc.id, data.name, data.price, data.path, data.type);
+          return new Menu(data.name, data.price, data.path, data.type);
         });
         setMenus(menuList);
       } catch (error) {
@@ -78,10 +141,9 @@ const Home = () => {
     fetchData();
     return () => {};
   }, []);
-
   return (
     <>
-      <Box sx={{ position: "relative" }}>
+      <Box sx={{ background: "#ECECEC", position: "relative" }}>
         <Stack
           direction="row"
           sx={{
@@ -108,6 +170,7 @@ const Home = () => {
             variant="contained"
             color="error"
             sx={{ borderRadius: 5, minWidth: "150px" }}
+            onClick={() => handleTypeClick()}
           >
             <Stack
               direction="row"
@@ -115,7 +178,7 @@ const Home = () => {
               alignItems="center"
               gap="10px"
             >
-              <Typography>All</Typography>
+              <Typography>{selectedType}</Typography>
               <img
                 width="15"
                 height="15"
@@ -127,65 +190,164 @@ const Home = () => {
           </Button>
         </Stack>
         {/* Hientypelist */}
-        <Box>
-          <Stack>
-            {Array.from(new Set(menus.map((menu) => menu.type))).map(
-              (type, index) => (
-                <Typography key={index}>{type}</Typography>
-              )
-            )}
-          </Stack>
-        </Box>
-        {/* Hienmenu */}
-        <Box sx={{ background: "#ECECEC", p: "0px 10px 16px 10px" }}>
-          <Grid container spacing={2}>
-            {menus.map((menu, index) => (
-              <Grid item xs={6} key={index}>
-                <ListItem
-                  sx={{
-                    justifyContent: "flex",
-                    flexDirection: "column",
-                    background: "white",
-                    borderRadius: "16px",
-                    height: "220px",
-                  }}
-                >
-                  <Stack
-                    direction="column"
-                    alignItems="center"
-                    sx={{ pt: "20px" }}
-                  >
-                    <Box
-                      component="img"
-                      alt={menu.name}
-                      src={menu.path}
-                      sx={{ maxWidth: "100px", maxHeight: "100px", pb: "10px" }}
-                    />
+        {showTypeList && (
+          <Box sx={{ p: "15px 10px 15px 10px" }}>
+            <Grid container spacing={2}>
+              {Array.from(new Set(menus.map((menu) => menu.type))).map(
+                (type, index) => {
+                  const firstMenuItem = menus.find(
+                    (menu) => menu.type === type
+                  );
+                  if (firstMenuItem) {
+                    return (
+                      <Grid item xs={6} key={index}>
+                        <Box
+                          sx={{
+                            background: "white",
+                            borderRadius: "16px ",
+                          }}
+                          onClick={
+                            type === "All"
+                              ? handleAllClick
+                              : () => handleTypeDetailClick(type)
+                          }
+                        >
+                          <Stack
+                            display="flex"
+                            alignItems="center"
+                            sx={{ pt: "20px" }}
+                          >
+                            <Box
+                              component="img"
+                              src={firstMenuItem.path}
+                              sx={{
+                                maxWidth: "100px",
+                                maxHeight: "100px",
+                                p: "5px 0px 5px 0px",
+                                borderRadius: "16px",
+                              }}
+                            />
+                            <Typography sx={{ fontWeight: 700 }}>
+                              {type}
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      </Grid>
+                    );
+                  }
+                  return null;
+                }
+              )}
+            </Grid>
+          </Box>
+        )}
 
-                    <Typography sx={{ fontWeight: 700 }}>
-                      {menu.name}
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700 }}>{menu.id}</Typography>
-                    <Typography sx={{ fontWeight: 700 }}>
-                      {menu.price.toLocaleString("vi-VN")}VNĐ
-                    </Typography>
-                  </Stack>
-                </ListItem>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+        {/* Hiendataloc */}
+        {showMenuDetail && (
+          <Stack sx={{ p: "16px 10px 16px 10px" }}>
+            <Grid container spacing={2}>
+              {selectedMenuItems
+                .sort((a, b) => b.price - a.price)
+                .map((menuItem, index) => (
+                  <Grid item xs={6} key={index}>
+                    <ListItem
+                      sx={{
+                        justifyContent: "flex",
+                        flexDirection: "column",
+                        background: "white",
+                        borderRadius: "16px",
+                        height: "240px",
+                      }}
+                    >
+                      <Stack
+                        direction="column"
+                        alignItems="center"
+                        sx={{ pt: "20px" }}
+                      >
+                        <Box
+                          component="img"
+                          alt={menuItem.name}
+                          src={menuItem.path}
+                          sx={{
+                            maxWidth: "120px",
+                            maxHeight: "120px",
+                            pb: "10px",
+                            borderRadius: "16px",
+                          }}
+                        />
+                        <Typography sx={{ fontWeight: 700 }}>
+                          {menuItem.name}
+                        </Typography>
+                        <Typography sx={{ fontWeight: 700 }}>
+                          {menuItem.price.toLocaleString("vi-VN")}VNĐ
+                        </Typography>
+                      </Stack>
+                    </ListItem>
+                  </Grid>
+                ))}
+            </Grid>
+          </Stack>
+        )}
+
+        {/* Hienmenu */}
+        {showMenu && (
+          <Box sx={{ p: "16px 10px 16px 10px" }}>
+            <Grid container spacing={2}>
+              {menus
+                .filter((menu) => menu.price !== 0)
+                .sort((a, b) => b.price - a.price)
+                .map((menu, index) => (
+                  <Grid item xs={6} key={index}>
+                    <ListItem
+                      sx={{
+                        justifyContent: "flex",
+                        flexDirection: "column",
+                        background: "white",
+                        borderRadius: "16px",
+                        height: "260px",
+                      }}
+                    >
+                      <Stack
+                        direction="column"
+                        alignItems="center"
+                        sx={{ pt: "20px" }}
+                      >
+                        <Box
+                          component="img"
+                          alt={menu.name}
+                          src={menu.path}
+                          sx={{
+                            maxWidth: "120px",
+                            maxHeight: "120px",
+                            pb: "10px",
+                            borderRadius: "16px",
+                          }}
+                        />
+
+                        <Typography sx={{ fontWeight: 700 }}>
+                          {menu.name}
+                        </Typography>
+                        <Typography sx={{ fontWeight: 700 }}>
+                          {menu.price.toLocaleString("vi-VN")}VNĐ
+                        </Typography>
+                      </Stack>
+                    </ListItem>
+                  </Grid>
+                ))}
+            </Grid>
+          </Box>
+        )}
+
         {/* Nutmuahang */}
         <Box sx={{ position: "fixed", bottom: "30px", right: "15px" }}>
           <Button sx={{ borderRadius: "100%" }}>
             <img
               width="50"
               height="50"
-              src="https://img.icons8.czom/fluency/48/shopping-cart.png"
+              src="https://img.icons8.com/fluency/48/shopping-cart.png"
               alt="shopping-cart"
             />
           </Button>
-          z
           <Box
             sx={{
               position: "absolute",
