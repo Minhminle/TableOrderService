@@ -179,9 +179,10 @@ const Home = () => {
               gap="10px"
             >
               <Typography>{selectedType}</Typography>
-              <img
-                width="15"
-                height="15"
+              <Box
+                component="img"
+                width="5"
+                height="5"
                 src="https://img.icons8.com/ios-glyphs/30/expand-arrow--v1.png"
                 alt="expand-arrow--v1"
                 style={{ filter: "invert(100%)" }}
