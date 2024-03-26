@@ -21,63 +21,20 @@ import {
   Typography,
 } from "@mui/material";
 
-// class User {
-//   name: string;
-//   dob: string;
-//   classRef: DocumentReference;
-//   // classId: string
-//   constructor(name: string, dob: string, classRef: DocumentReference) {
-//     this.name = name;
-//     this.dob = dob;
-//     this.classRef = classRef;
-//   }
-// }
-
-// class UserClass {
-//   name: string;
-//   constructor(name: string) {
-//     this.name = name;
-//   }
-// }
-// const userConverter = {
-//   toFirestore: (user: User) => {
-//     return {
-//       name: user.name,
-//       state: user.dob,
-//       class: user.classRef,
-//     };
-//   },
-
-//   fromFirestore: (
-//     snapshot: QueryDocumentSnapshot<DocumentData, DocumentData>,
-//     options: SnapshotOptions
-//   ) => {
-//     const data = snapshot.data(options);
-//     return new User(data.name, data.dob, data.class);
-//   },
-// };
-
-// const classConverter = {
-//   toFirestore: (obj: UserClass) => {
-//     return {
-//       name: obj.name,
-//     };
-//   },
-//   fromFirestore: (
-//     snapshot: QueryDocumentSnapshot<DocumentData, DocumentData>,
-//     options: SnapshotOptions
-//   ) => {
-//     const data = snapshot.data(options);
-//     return new UserClass(data.name);
-//   },
-// };
-
 class Menu {
+  id: string;
   name: string;
   price: number;
   path: string;
   type: string;
-  constructor(name: string, price: number, path: string, type: string) {
+  constructor(
+    id: string,
+    name: string,
+    price: number,
+    path: string,
+    type: string
+  ) {
+    this.id = id;
     this.name = name;
     this.price = price;
     this.path = path;
@@ -92,6 +49,12 @@ const Home = () => {
   const [showTypeList, setShowTypeList] = useState(false);
   const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
   const [selectedType, setSelectedType] = useState("All");
+  const [cartItems, setCartItems] = useState<
+    { id: string; quantity: number }[]
+  >([]);
+  const [cartTotal, setCartTotal] = useState<number>(0);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
     setShowMenu(false);
@@ -131,7 +94,7 @@ const Home = () => {
         const menuSnapshot = await getDocs(menuCollection);
         const menuList = menuSnapshot.docs.map((doc) => {
           const data = doc.data();
-          return new Menu(data.name, data.price, data.path, data.type);
+          return new Menu(doc.id, data.name, data.price, data.path, data.type);
         });
         setMenus(menuList);
       } catch (error) {
@@ -141,6 +104,36 @@ const Home = () => {
     fetchData();
     return () => {};
   }, []);
+
+  const handleAddToCart = (menuId: string) => {
+    const existingItemIndex = cartItems.findIndex((item) => item.id === menuId);
+    if (existingItemIndex === -1) {
+      // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
+      console.log("Adding item with ID:", menuId);
+      setCartItems((prevCartItems) => [
+        ...prevCartItems,
+        { id: menuId, quantity: 1 },
+      ]);
+      setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
+    } else {
+      // Nếu món đã có trong giỏ hàng, loại bỏ nó khỏi giỏ hàng
+      console.log("Removing item with ID:", menuId);
+      const updatedCartItems = cartItems.filter((item) => item.id !== menuId);
+      setCartItems(updatedCartItems);
+      setSelectedItems((prevSelectedItems) =>
+        prevSelectedItems.filter((id) => id !== menuId)
+      );
+    }
+  };
+
+  useEffect(() => {
+    const totalItems = cartItems.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    setCartTotal(totalItems);
+  }, [cartItems]);
+
   return (
     <>
       <Box sx={{ background: "#ECECEC", position: "relative" }}>
@@ -179,9 +172,10 @@ const Home = () => {
               gap="10px"
             >
               <Typography>{selectedType}</Typography>
-              <img
-                width="15"
-                height="15"
+              <Box
+                component="img"
+                width="5"
+                height="5"
                 src="https://img.icons8.com/ios-glyphs/30/expand-arrow--v1.png"
                 alt="expand-arrow--v1"
                 style={{ filter: "invert(100%)" }}
@@ -249,7 +243,12 @@ const Home = () => {
               {selectedMenuItems
                 .sort((a, b) => b.price - a.price)
                 .map((menuItem, index) => (
-                  <Grid item xs={6} key={index}>
+                  <Grid
+                    item
+                    xs={6}
+                    key={index}
+                    onClick={() => handleAddToCart(menuItem.id)}
+                  >
                     <ListItem
                       sx={{
                         justifyContent: "flex",
@@ -257,6 +256,9 @@ const Home = () => {
                         background: "white",
                         borderRadius: "16px",
                         height: "240px",
+                        border: selectedItems.includes(menuItem.id)
+                          ? "2px solid red"
+                          : "none",
                       }}
                     >
                       <Stack
@@ -297,7 +299,12 @@ const Home = () => {
                 .filter((menu) => menu.price !== 0)
                 .sort((a, b) => b.price - a.price)
                 .map((menu, index) => (
-                  <Grid item xs={6} key={index}>
+                  <Grid
+                    item
+                    xs={6}
+                    key={index}
+                    onClick={() => handleAddToCart(menu.id)}
+                  >
                     <ListItem
                       sx={{
                         justifyContent: "flex",
@@ -305,6 +312,9 @@ const Home = () => {
                         background: "white",
                         borderRadius: "16px",
                         height: "260px",
+                        border: selectedItems.includes(menu.id)
+                          ? "2px solid red"
+                          : "none",
                       }}
                     >
                       <Stack
@@ -363,7 +373,7 @@ const Home = () => {
               lineHeight: "25px",
             }}
           >
-            0
+            {cartTotal}
           </Box>
         </Box>
       </Box>
