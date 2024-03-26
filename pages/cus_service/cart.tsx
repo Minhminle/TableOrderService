@@ -68,6 +68,7 @@ const Cart = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          width: "100%",
         }}
       >
         <Typography
@@ -80,15 +81,15 @@ const Cart = () => {
           THÔNG TIN ĐƠN HÀNG
         </Typography>
       </Box>
-      <Box sx={{ p: "25px 3px 0px 15px" }}>
-        <Grid container spacing={2}>
+      <Box>
+        <Stack display="flex">
           <Stack
             direction={"row"}
-            alignItems="center"
+            justifyContent="space-between"
             sx={{
               padding: "5px",
               backgroundColor: "#fff9c4",
-              width: "100%",
+              width: "99%",
               borderRadius: "16px",
             }}
           >
@@ -154,7 +155,7 @@ const Cart = () => {
               </Stack>
             </Stack>
           </Stack>
-        </Grid>
+        </Stack>
       </Box>
       <Typography
         sx={{
