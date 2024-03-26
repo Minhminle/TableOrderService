@@ -3,8 +3,15 @@ import { Box, Button, Grid, ListItem, Stack, Typography } from "@mui/material";
 import { Menu, useFetchMenus } from "@/models/Menu";
 
 const Home = () => {
+  const fetchedMenus = useFetchMenus();
   const [menus, setMenus] = useState<Menu[]>([]);
+
+  useEffect(() => {
+    setMenus(fetchedMenus); // Cập nhật state menus sau khi fetch dữ liệu thành công
+  }, [fetchedMenus]);
+
   const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [previousShowMenu, setPreviousShowMenu] = useState<boolean>(true);
   const [showMenuDetail, sethSowMenuDetail] = useState<boolean>(false);
   const [showTypeList, setShowTypeList] = useState(false);
   const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
@@ -17,7 +24,8 @@ const Home = () => {
 
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
-    setShowMenu(false);
+    setPreviousShowMenu((prevShowMenu) => !prevShowMenu);
+    setShowMenu(!previousShowMenu);
     sethSowMenuDetail(false);
     setSelectedType("All");
   };
@@ -35,11 +43,37 @@ const Home = () => {
     setSelectedType(type);
   };
 
-  const fetchedMenus = useFetchMenus();
+  const typeMapping = {
+    All: "Tất cả",
+    Pickle: "Đồ chua - Bánh mì",
+    Beverages: "Nước ngọt - Trà",
+    Beef: "Bò nướng",
+    Meat: "Heo - Gà - Hải sản",
+    Soda: "Soda mùi",
+    Vegetable: "Rau nướng",
+    Hotpots: "Lẩu",
+    Combo: "Combo Nướng & Lẩu",
+    Sausace: "Sốt",
+  };
 
-  useEffect(() => {
-    setMenus(fetchedMenus); // Cập nhật state menus sau khi fetch dữ liệu thành công
-  }, [fetchedMenus]);
+  const getTypeName = (type: keyof typeof typeMapping) =>
+    typeMapping[type] || type;
+
+  const typeImage = {
+    All: "https://i.ibb.co/0tF7fyd/all.jpg",
+    Pickle: "https://i.ibb.co/0n30TwX/Pickle.jpg",
+    Beef: "https://i.ibb.co/DLwJ2Mg/beef.jpg",
+    Hotpots: "https://i.ibb.co/y8Ndcqs/hotpot.jpg",
+    Sausace: "https://i.ibb.co/kSsJ3CJ/sausace.jpg",
+    Beverages: "https://i.ibb.co/Dw8JDmM/Beverages.jpg",
+    Soda: "https://i.ibb.co/mtSMfm2/soda.jpg",
+    Combo: "https://i.ibb.co/jGFHGzj/combo.jpg",
+    Meat: "https://i.ibb.co/8dH5kK4/meat.jpg",
+    Vegetable: "https://i.ibb.co/xmcdkwk/vegetable.jpg",
+  };
+
+  const getTypeImage = (type: keyof typeof typeImage) =>
+    typeImage[type] || type;
 
   const handleAddToCart = (menuId: string) => {
     const existingItemIndex = cartItems.findIndex((item) => item.id === menuId);
@@ -89,8 +123,8 @@ const Home = () => {
               sx={{
                 color: "#ffffff",
                 fontWeight: 600,
+                fontSize: "22px",
               }}
-              variant="h5"
             >
               THỰC ĐƠN
             </Typography>
@@ -98,7 +132,7 @@ const Home = () => {
           <Button
             variant="contained"
             color="error"
-            sx={{ borderRadius: 5, minWidth: "150px" }}
+            sx={{ borderRadius: 5, width: "200px" }}
             onClick={() => handleTypeClick()}
           >
             <Stack
@@ -107,7 +141,10 @@ const Home = () => {
               alignItems="center"
               gap="10px"
             >
-              <Typography>{selectedType}</Typography>
+              <Typography style={{ fontSize: "12px" }}>
+                {/* {selectedType} */}
+                {getTypeName(selectedType as keyof typeof typeMapping)}
+              </Typography>
               <Box
                 component="img"
                 width="5"
@@ -149,7 +186,9 @@ const Home = () => {
                           >
                             <Box
                               component="img"
-                              src={firstMenuItem.path}
+                              src={getTypeImage(
+                                type as keyof typeof typeMapping
+                              )}
                               sx={{
                                 maxWidth: "100px",
                                 maxHeight: "100px",
@@ -158,7 +197,7 @@ const Home = () => {
                               }}
                             />
                             <Typography sx={{ fontWeight: 700 }}>
-                              {type}
+                              {getTypeName(type as keyof typeof typeMapping)}
                             </Typography>
                           </Stack>
                         </Box>
@@ -270,7 +309,9 @@ const Home = () => {
                           }}
                         />
 
-                        <Typography sx={{ fontWeight: 700 }}>
+                        <Typography
+                          sx={{ fontWeight: 700, textAlign: "center" }}
+                        >
                           {menu.name}
                         </Typography>
                         <Typography sx={{ fontWeight: 700 }}>
