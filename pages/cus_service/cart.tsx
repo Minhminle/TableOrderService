@@ -17,13 +17,13 @@ const Cart = () => {
     {
       name: "COMBO NƯỚNG LỚN & LẨU BÒ KIM CHÂM",
       path: "https://i.ibb.co/8dH5kK4/meat.jpg",
-      quantity: 0,
+      quantity: 1,
       price: 13000,
     },
     {
       name: "TRỨNG",
       path: "https://i.ibb.co/rfBf8NF/temp-Picture.jpg",
-      quantity: 0,
+      quantity: 1,
       price: 5000,
     },
   ]);
@@ -42,14 +42,14 @@ const Cart = () => {
   }, []);
 
   // Hàm tăng số lượng sản phẩm
-  const increaseQuantity = (index) => {
+  const increaseQuantity = (index: number) => {
     const newProducts = [...products];
     newProducts[index].quantity++;
     setProducts(newProducts);
   };
 
   // Hàm giảm số lượng sản phẩm
-  const decreaseQuantity = (index) => {
+  const decreaseQuantity = (index: number) => {
     const newProducts = [...products];
     if (newProducts[index].quantity > 0) {
       newProducts[index].quantity--;
@@ -96,7 +96,7 @@ const Cart = () => {
       </Box>
       {/* Hiểnthị*/}
       <Box>
-        <Stack>
+        <Stack spacing={1}>
           {products.map((product, index) => (
             <Stack
               key={index}
