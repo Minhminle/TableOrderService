@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
+import { useRouter } from "next/router";
 import {
   DocumentData,
   QueryDocumentSnapshot,
@@ -54,6 +55,13 @@ const Home = () => {
   >([]);
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const router = useRouter();
+  const handleViewCart = () => {
+    const queryParams = cartItems
+      .map((item) => `id=${item.id}&quantity=${item.quantity}`)
+      .join("&");
+    router.push(`/cus_service/cart?${queryParams}`);
+  };
 
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
@@ -350,7 +358,7 @@ const Home = () => {
 
         {/* Nutmuahang */}
         <Box sx={{ position: "fixed", bottom: "30px", right: "15px" }}>
-          <Button sx={{ borderRadius: "100%" }}>
+          <Button sx={{ borderRadius: "100%" }} onClick={handleViewCart}>
             <img
               width="50"
               height="50"
