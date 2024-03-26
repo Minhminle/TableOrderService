@@ -1,25 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { initializeApp } from "firebase/app";
-import {
-  DocumentData,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-  doc,
-  getFirestore,
-  DocumentReference,
-} from "firebase/firestore";
-import Image from "next/image";
-import { collection, addDoc, getDocs, getDoc } from "firebase/firestore";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import {
-  Avatar,
-  Box,
-  Button,
-  Grid,
-  ListItem,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Grid, ListItem, Stack, Typography } from "@mui/material";
 import { Menu, useFetchMenus } from "@/models/Menu";
 
 const Home = () => {
