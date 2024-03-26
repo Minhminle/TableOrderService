@@ -327,7 +327,7 @@ const Home = () => {
 
         {/* Nutmuahang */}
         <Box sx={{ position: "fixed", bottom: "30px", right: "15px" }}>
-          <Button sx={{ borderRadius: "100%" }}>
+          <Button sx={{ borderRadius: "100%" }} href="cart">
             <img
               width="50"
               height="50"
