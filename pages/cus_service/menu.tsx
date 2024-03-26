@@ -20,27 +20,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-
-class Menu {
-  id: string;
-  name: string;
-  price: number;
-  path: string;
-  type: string;
-  constructor(
-    id: string,
-    name: string,
-    price: number,
-    path: string,
-    type: string
-  ) {
-    this.id = id;
-    this.name = name;
-    this.price = price;
-    this.path = path;
-    this.type = type;
-  }
-}
+import { Menu, useFetchMenus } from "@/models/Menu";
 
 const Home = () => {
   const [menus, setMenus] = useState<Menu[]>([]);
@@ -75,35 +55,11 @@ const Home = () => {
     setSelectedType(type);
   };
 
-  useEffect(() => {
-    const firebaseConfig = {
-      apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
-      authDomain: "tableorderservice.firebaseapp.com",
-      projectId: "tableorderservice",
-      storageBucket: "tableorderservice.appspot.com",
-      messagingSenderId: "789767582873",
-      appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
-      measurementId: "G-25TT028B48",
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const fetchedMenus = useFetchMenus();
 
-    const fetchData = async () => {
-      try {
-        const menuCollection = collection(db, "Menus");
-        const menuSnapshot = await getDocs(menuCollection);
-        const menuList = menuSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return new Menu(doc.id, data.name, data.price, data.path, data.type);
-        });
-        setMenus(menuList);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
-    fetchData();
-    return () => {};
-  }, []);
+  useEffect(() => {
+    setMenus(fetchedMenus); // Cập nhật state menus sau khi fetch dữ liệu thành công
+  }, [fetchedMenus]);
 
   const handleAddToCart = (menuId: string) => {
     const existingItemIndex = cartItems.findIndex((item) => item.id === menuId);
