@@ -45,6 +45,7 @@ class Menu {
 const Home = () => {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [previousShowMenu, setPreviousShowMenu] = useState<boolean>(true);
   const [showMenuDetail, sethSowMenuDetail] = useState<boolean>(false);
   const [showTypeList, setShowTypeList] = useState(false);
   const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
@@ -57,7 +58,8 @@ const Home = () => {
 
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
-    setShowMenu(false);
+    setPreviousShowMenu((prevShowMenu) => !prevShowMenu);
+    setShowMenu(!previousShowMenu);
     sethSowMenuDetail(false);
     setSelectedType("All");
   };

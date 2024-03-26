@@ -13,11 +13,24 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 
 const Cart = () => {
-  const [quantity, setQuantity] = useState(1); // Trạng thái lưu giá trị hiện tại của TextField sản phẩm 1
-  const [price, setPrice] = useState(13000); // Giá tiền của mỗi sản phẩm
-  const [totalPrice, setTotalPrice] = useState(0); // Trạng thái lưu tổng tiền
+  const [products, setProducts] = useState([
+    {
+      name: "COMBO NƯỚNG LỚN & LẨU BÒ KIM CHÂM",
+      path: "https://i.ibb.co/8dH5kK4/meat.jpg",
+      quantity: 0,
+      price: 13000,
+    },
+    {
+      name: "TRỨNG",
+      path: "https://i.ibb.co/rfBf8NF/temp-Picture.jpg",
+      quantity: 0,
+      price: 5000,
+    },
+  ]);
+
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
   useEffect(() => {
     const userAgent =
       typeof window.navigator === "undefined" ? "" : navigator.userAgent;
@@ -27,30 +40,30 @@ const Cart = () => {
       )
     );
   }, []);
-  const handleTextFieldFocus = () => {
-    if (isMobile) {
-      setIsKeyboardOpen(true);
+
+  // Hàm tăng số lượng sản phẩm
+  const increaseQuantity = (index) => {
+    const newProducts = [...products];
+    newProducts[index].quantity++;
+    setProducts(newProducts);
+  };
+
+  // Hàm giảm số lượng sản phẩm
+  const decreaseQuantity = (index) => {
+    const newProducts = [...products];
+    if (newProducts[index].quantity > 0) {
+      newProducts[index].quantity--;
+      setProducts(newProducts);
     }
   };
 
-  const handleTextFieldBlur = () => {
-    if (isMobile) {
-      setIsKeyboardOpen(false);
-    }
-  };
-
-  // Hàm tăng giá trị sản phẩm
-  const increase = () => {
-    setQuantity((prevQuantity) => prevQuantity + 1);
-    setTotalPrice((prevTotalPrice) => prevTotalPrice + price); // Cập nhật tổng tiền khi tăng số lượng
-  };
-
-  // Hàm giảm giá trị sản phẩm
-  const decrease = () => {
-    if (quantity > 0) {
-      setQuantity((prevQuantity) => prevQuantity - 1);
-      setTotalPrice((prevTotalPrice) => prevTotalPrice - price); // Cập nhật tổng tiền khi giảm số lượng
-    }
+  // Tính tổng giá trị của các sản phẩm trong giỏ hàng
+  const calculateTotalPrice = () => {
+    let totalPrice = 0;
+    products.forEach((product) => {
+      totalPrice = totalPrice + product.quantity * product.price;
+    });
+    return totalPrice;
   };
 
   const router = useRouter();
@@ -81,82 +94,98 @@ const Cart = () => {
           THÔNG TIN ĐƠN HÀNG
         </Typography>
       </Box>
+      {/* Hiểnthị*/}
       <Box>
-        <Stack display="flex">
-          <Stack
-            direction={"row"}
-            justifyContent="space-between"
-            sx={{
-              padding: "5px",
-              backgroundColor: "#fff9c4",
-              width: "99%",
-              borderRadius: "16px",
-            }}
-          >
-            <Box
-              component="img"
-              src="https://i.ibb.co/8dH5kK4/meat.jpg"
+        <Stack>
+          {products.map((product, index) => (
+            <Stack
+              key={index}
+              direction={"row"}
+              justifyContent="space-between"
               sx={{
-                width: "60px",
-                height: "60px",
+                padding: "5px",
+                backgroundColor: "#fff9c4",
+                width: "99%",
                 borderRadius: "16px",
               }}
-            />
-            <Stack pl={"5px"}>
-              <Typography style={{ fontSize: "13px", fontWeight: "bold" }}>
-                COMBO NƯỚNG LỚN & LẨU BÒ KIM CHÂM
-              </Typography>
-              <Stack direction={"row"}>
-                <TextField
-                  id="standard-basic"
-                  label="Ghi chú"
-                  onFocus={handleTextFieldFocus}
-                  onBlur={handleTextFieldBlur}
-                  variant="standard"
-                  style={{ fontSize: "10px", fontStyle: "italic" }}
-                  sx={{ width: "100%" }}
-                  InputProps={{
-                    style: {
-                      fontSize: "15px",
-                      background: "transparent", // Đặt màu nền thành trong suốt
-                    },
-                  }}
-                />
-                <Stack sx={{ width: "100%" }}>
-                  <Typography
-                    style={{ fontSize: "15px" }}
-                    sx={{ fontWeight: 700, color: "red", textAlign: "right" }}
-                  >
-                    {price * quantity} VND
-                  </Typography>
-                  <Stack
-                    sx={{ justifyContent: "flex-end" }}
-                    direction={"row"}
-                    spacing={0}
-                  >
-                    <IconButton sx={{ padding: "0" }} onClick={increase}>
-                      <LocalHospitalIcon />
-                    </IconButton>
-                    <TextField
-                      value={quantity}
-                      variant="standard"
-                      inputProps={{
-                        style: {
-                          textAlign: "center",
-                          maxWidth: "30px",
-                        },
+            >
+              <Box
+                component="img"
+                src={`${product.path}`}
+                sx={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "16px",
+                }}
+              />
+              <Stack pl={"5px"}>
+                <Typography style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  {product.name}
+                </Typography>
+                <Stack direction={"row"}>
+                  <TextField
+                    id="standard-basic"
+                    label="Ghi chú"
+                    onFocus={() => setIsKeyboardOpen(true)}
+                    onBlur={() => setIsKeyboardOpen(false)}
+                    variant="standard"
+                    style={{ fontSize: "10px", fontStyle: "italic" }}
+                    sx={{ width: "100%" }}
+                    InputProps={{
+                      style: {
+                        fontSize: "15px",
+                        background: "transparent", // Đặt màu nền thành trong suốt
+                      },
+                    }}
+                  />
+                  <Stack sx={{ width: "100%" }}>
+                    <Typography
+                      style={{ fontSize: "15px" }}
+                      sx={{
+                        fontWeight: 700,
+                        color: "red",
+                        textAlign: "right",
                       }}
-                    />
-                    <IconButton sx={{ padding: "0" }} onClick={decrease}>
-                      <IndeterminateCheckBoxIcon />
-                    </IconButton>
+                    >
+                      {product.quantity * product.price} VND
+                    </Typography>
+                    <Stack
+                      sx={{ justifyContent: "flex-end" }}
+                      direction={"row"}
+                      spacing={0}
+                    >
+                      <IconButton
+                        sx={{ padding: "0" }}
+                        onClick={() => decreaseQuantity(index)}
+                      >
+                        <IndeterminateCheckBoxIcon />
+                      </IconButton>
+                      <TextField
+                        value={product.quantity}
+                        variant="standard"
+                        inputProps={{
+                          style: {
+                            textAlign: "center",
+                            maxWidth: "30px",
+                          },
+                        }}
+                      />
+                      <IconButton
+                        sx={{ padding: "0" }}
+                        onClick={() => increaseQuantity(index)}
+                      >
+                        <LocalHospitalIcon />
+                      </IconButton>
+                    </Stack>
                   </Stack>
                 </Stack>
               </Stack>
             </Stack>
-          </Stack>
+          ))}
         </Stack>
       </Box>
+
+      {/* Hiển thị tổng giá trị */}
       <Typography
         sx={{
           textAlign: "right",
@@ -166,11 +195,10 @@ const Cart = () => {
           mr: "5px",
         }}
       >
-        {/* totalPrice */}
-        Tổng cộng: {price * quantity} VND
-        {/* Hiển thị tổng tiền */}
+        Tổng cộng: {calculateTotalPrice()} VND
       </Typography>
 
+      {/* Button điều hướng và thoát */}
       <Box
         sx={{
           position: "fixed",
