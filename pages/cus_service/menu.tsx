@@ -92,6 +92,11 @@ const Home = () => {
   const [showTypeList, setShowTypeList] = useState(false);
   const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
   const [selectedType, setSelectedType] = useState("All");
+  const [cartItems, setCartItems] = useState<
+    { id: string; quantity: number }[]
+  >([]);
+  const [cartTotal, setCartTotal] = useState<number>(0);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
     setShowMenu(false);
@@ -141,6 +146,35 @@ const Home = () => {
     fetchData();
     return () => {};
   }, []);
+  const handleAddToCart = (menuId: string) => {
+    const existingItemIndex = cartItems.findIndex((item) => item.id === menuId);
+    if (existingItemIndex === -1) {
+      // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
+      console.log("Adding item with ID:", menuId);
+      setCartItems((prevCartItems) => [
+        ...prevCartItems,
+        { id: menuId, quantity: 1 },
+      ]);
+      setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
+    } else {
+      // Nếu món đã có trong giỏ hàng, loại bỏ nó khỏi giỏ hàng
+      console.log("Removing item with ID:", menuId);
+      const updatedCartItems = cartItems.filter((item) => item.id !== menuId);
+      setCartItems(updatedCartItems);
+      setSelectedItems((prevSelectedItems) =>
+        prevSelectedItems.filter((id) => id !== menuId)
+      );
+    }
+  };
+
+  useEffect(() => {
+    const totalItems = cartItems.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    setCartTotal(totalItems);
+  }, [cartItems]);
+
   return (
     <>
       <Box sx={{ background: "#ECECEC", position: "relative" }}>
