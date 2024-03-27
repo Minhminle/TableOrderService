@@ -51,16 +51,21 @@ const Home = () => {
   const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
   const [selectedType, setSelectedType] = useState("All");
   const [cartItems, setCartItems] = useState<
-    { id: string; quantity: number }[]
+    {
+      id: string;
+      quantity: number;
+      name: string;
+      price: number;
+      path: string;
+      type: string;
+    }[]
   >([]);
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
   const handleViewCart = () => {
-    const queryParams = cartItems
-      .map((item) => `id${item.id}=${item.quantity}`)
-      .join("&");
-    router.push(`/cus_service/cart?${queryParams}`);
+    const queryParams = encodeURIComponent(JSON.stringify(cartItems));
+    router.push(`/cus_service/cart?items=${queryParams}`);
   };
 
   const handleTypeClick = () => {
@@ -114,23 +119,41 @@ const Home = () => {
   }, []);
 
   const handleAddToCart = (menuId: string) => {
-    const existingItemIndex = cartItems.findIndex((item) => item.id === menuId);
-    if (existingItemIndex === -1) {
-      // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
-      console.log("Adding item with ID:", menuId);
-      setCartItems((prevCartItems) => [
-        ...prevCartItems,
-        { id: menuId, quantity: 1 },
-      ]);
-      setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
-    } else {
-      // Nếu món đã có trong giỏ hàng, loại bỏ nó khỏi giỏ hàng
-      console.log("Removing item with ID:", menuId);
-      const updatedCartItems = cartItems.filter((item) => item.id !== menuId);
-      setCartItems(updatedCartItems);
-      setSelectedItems((prevSelectedItems) =>
-        prevSelectedItems.filter((id) => id !== menuId)
+    // Tìm mặt hàng trong danh sách menu dựa trên menuId
+    const menuItem = menus.find((menu) => menu.id === menuId);
+
+    if (menuItem) {
+      // Kiểm tra xem mặt hàng đã có trong giỏ hàng chưa
+      const existingItemIndex = cartItems.findIndex(
+        (item) => item.id === menuId
       );
+
+      if (existingItemIndex === -1) {
+        // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
+        console.log("Adding item with ID:", menuId);
+        setCartItems((prevCartItems) => [
+          ...prevCartItems,
+          {
+            id: menuItem.id,
+            name: menuItem.name,
+            price: menuItem.price,
+            path: menuItem.path,
+            type: menuItem.type,
+            quantity: 1,
+          },
+        ]);
+        setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
+      } else {
+        // Nếu món đã có trong giỏ hàng, tăng số lượng lên 1
+        console.log("Incrementing quantity for item with ID:", menuId);
+        setCartItems((prevCartItems) =>
+          prevCartItems.map((item) =>
+            item.id === menuId ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        );
+      }
+    } else {
+      console.error("Menu item not found!");
     }
   };
 
