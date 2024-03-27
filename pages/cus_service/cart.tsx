@@ -13,43 +13,38 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 
 const Cart = () => {
-  const [products, setProducts] = useState([
-    {
-      name: "COMBO NƯỚNG LỚN & LẨU BÒ KIM CHÂM",
-      path: "https://i.ibb.co/8dH5kK4/meat.jpg",
-      quantity: 0,
-      price: 13000,
-    },
-    {
-      name: "TRỨNG",
-      path: "https://i.ibb.co/rfBf8NF/temp-Picture.jpg",
-      quantity: 0,
-      price: 5000,
-    },
-  ]);
-
+  const router = useRouter();
+  const [products, setProducts] = useState<
+    Array<{
+      id: string;
+      quantity: number;
+      name: string;
+      price: number;
+      path: string;
+      type: string;
+    }>
+  >([]);
+  useEffect(() => {
+    if (router.query && router.query.items) {
+      const queryParams = Array.isArray(router.query.items)
+        ? router.query.items[0] // Lấy phần tử đầu tiên trong mảng
+        : router.query.items;
+      const decodedItems = JSON.parse(decodeURIComponent(queryParams));
+      setProducts(decodedItems);
+    }
+  }, [router.query]);
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
-  useEffect(() => {
-    const userAgent =
-      typeof window.navigator === "undefined" ? "" : navigator.userAgent;
-    setIsMobile(
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        userAgent
-      )
-    );
-  }, []);
-
   // Hàm tăng số lượng sản phẩm
-  const increaseQuantity = (index) => {
+  const increaseQuantity = (index: number) => {
     const newProducts = [...products];
     newProducts[index].quantity++;
     setProducts(newProducts);
   };
 
   // Hàm giảm số lượng sản phẩm
-  const decreaseQuantity = (index) => {
+  const decreaseQuantity = (index: number) => {
     const newProducts = [...products];
     if (newProducts[index].quantity > 0) {
       newProducts[index].quantity--;
@@ -65,8 +60,6 @@ const Cart = () => {
     });
     return totalPrice;
   };
-
-  const router = useRouter();
 
   const handleExit = () => {
     router.push("/cus_service/menu"); // Điều hướng về trang chính (home)
