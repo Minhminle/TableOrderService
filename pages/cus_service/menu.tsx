@@ -58,7 +58,7 @@ const Home = () => {
   const router = useRouter();
   const handleViewCart = () => {
     const queryParams = cartItems
-      .map((item) => `id=${item.id}&quantity=${item.quantity}`)
+      .map((item) => `id${item.id}=${item.quantity}`)
       .join("&");
     router.push(`/cus_service/cart?${queryParams}`);
   };

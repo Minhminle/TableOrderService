@@ -8,21 +8,18 @@ const Cart = () => {
   >([]);
 
   useEffect(() => {
-    // Kiểm tra xem router.query có tồn tại hay không và có chứa các query params không
     if (router.query && Object.keys(router.query).length > 0) {
       const queryParams = router.query;
       const items = [];
 
-      // Xử lý thông tin sản phẩm từ query params
       for (const key in queryParams) {
         if (key.startsWith("id")) {
           const id = key.substring(2);
-          const quantity = parseInt(queryParams[key] as string, 10); // Chú ý ép kiểu đúng cách
+          const quantity = parseInt(queryParams[key] as string, 10);
           items.push({ id, quantity });
         }
       }
 
-      // Cập nhật state với thông tin sản phẩm
       setCartItems(items);
     }
   }, [router.query]);
