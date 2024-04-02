@@ -11,8 +11,23 @@ import {
 } from "@mui/material";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
-
+import firebase from "firebase/compat/app";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getDatabase, ref, push } from "firebase/database";
 const Cart = () => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
+    authDomain: "tableorderservice.firebaseapp.com",
+    projectId: "tableorderservice",
+    storageBucket: "tableorderservice.appspot.com",
+    messagingSenderId: "789767582873",
+    appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
+    measurementId: "G-25TT028B48",
+  };
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const orderRef = ref(database, "OrderDetails");
   const router = useRouter();
   const [products, setProducts] = useState<
     Array<{
@@ -27,12 +42,13 @@ const Cart = () => {
   useEffect(() => {
     if (router.query && router.query.items) {
       const queryParams = Array.isArray(router.query.items)
-        ? router.query.items[0] // Lấy phần tử đầu tiên trong mảng
+        ? router.query.items[0]
         : router.query.items;
       const decodedItems = JSON.parse(decodeURIComponent(queryParams));
       setProducts(decodedItems);
     }
   }, [router.query]);
+
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
@@ -50,6 +66,10 @@ const Cart = () => {
       newProducts[index].quantity--;
       setProducts(newProducts);
     }
+    if (newProducts[index].quantity === 0) {
+      newProducts.splice(index, 1);
+      setProducts(newProducts);
+    }
   };
 
   // Tính tổng giá trị của các sản phẩm trong giỏ hàng
@@ -64,6 +84,26 @@ const Cart = () => {
   const handleExit = () => {
     router.push("/cus_service/menu"); // Điều hướng về trang chính (home)
   };
+  function sendOrder(
+    products: {
+      id: string;
+      quantity: number;
+      name: string;
+      price: number;
+      path: string;
+      type: string;
+    }[]
+  ) {
+    // Gửi toàn bộ mảng products lên Firebase Realtime Database
+    orderRef
+      .set(products) // Gửi dữ liệu của toàn bộ mảng lên Firebase
+      .then(() => {
+        console.log("Data sent successfully!");
+      })
+      .catch((error) => {
+        console.error("Error sending data: ", error);
+      });
+  }
 
   return (
     <>
@@ -88,8 +128,8 @@ const Cart = () => {
         </Typography>
       </Box>
       {/* Hiểnthị*/}
-      <Box>
-        <Stack>
+      <Box sx={{ p: "20px 0px 0px 0px" }}>
+        <Stack display="flex" gap="20px">
           {products.map((product, index) => (
             <Stack
               key={index}
@@ -140,7 +180,10 @@ const Cart = () => {
                         textAlign: "right",
                       }}
                     >
-                      {product.quantity * product.price} VND
+                      {(product.quantity * product.price).toLocaleString(
+                        "vi-VN"
+                      )}{" "}
+                      VND
                     </Typography>
                     <Stack
                       sx={{ justifyContent: "flex-end" }}
@@ -188,7 +231,7 @@ const Cart = () => {
           mr: "5px",
         }}
       >
-        Tổng cộng: {calculateTotalPrice()} VND
+        Tổng cộng: {calculateTotalPrice().toLocaleString("vi-VN")} VND
       </Typography>
 
       {/* Button điều hướng và thoát */}
@@ -206,6 +249,7 @@ const Cart = () => {
           <Button
             variant="contained"
             style={{ width: "100%", background: "#C50023", color: "#ffffff" }}
+            onClick={() => sendOrder}
           >
             Gửi đơn
           </Button>

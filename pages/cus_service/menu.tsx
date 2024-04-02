@@ -1,26 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { useRouter } from "next/router";
-import {
-  DocumentData,
-  QueryDocumentSnapshot,
-  SnapshotOptions,
-  doc,
-  getFirestore,
-  DocumentReference,
-} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import Image from "next/image";
 import { collection, addDoc, getDocs, getDoc } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import {
-  Avatar,
-  Box,
-  Button,
-  Grid,
-  ListItem,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Grid, ListItem, Stack, Typography } from "@mui/material";
+import firebase from "firebase/compat/app";
 
 class Menu {
   id: string;
@@ -121,13 +107,11 @@ const Home = () => {
   const handleAddToCart = (menuId: string) => {
     // Tìm mặt hàng trong danh sách menu dựa trên menuId
     const menuItem = menus.find((menu) => menu.id === menuId);
-
     if (menuItem) {
       // Kiểm tra xem mặt hàng đã có trong giỏ hàng chưa
       const existingItemIndex = cartItems.findIndex(
         (item) => item.id === menuId
       );
-
       if (existingItemIndex === -1) {
         // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
         console.log("Adding item with ID:", menuId);
@@ -182,6 +166,19 @@ const Home = () => {
     );
     setCartTotal(totalItems);
   }, [cartItems]);
+  const sendOrder = () => {
+    const orderRef = firebase.database().ref("OrderDetails");
+    orderRef
+      .push(cartItems)
+      .then(() => {
+        console.log("Data sent successfully!");
+
+        setCartItems([]);
+      })
+      .catch((error) => {
+        console.error("Error sending data: ", error);
+      });
+  };
 
   return (
     <>
