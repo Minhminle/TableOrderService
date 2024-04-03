@@ -11,35 +11,44 @@ import {
 } from "@mui/material";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
-
+import firebase from "firebase/compat/app";
+import { initializeApp } from "firebase/app";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { getDatabase, ref, push } from "firebase/database";
 const Cart = () => {
-  const [products, setProducts] = useState([
-    {
-      name: "COMBO NƯỚNG LỚN & LẨU BÒ KIM CHÂM",
-      path: "https://i.ibb.co/8dH5kK4/meat.jpg",
-      quantity: 1,
-      price: 13000,
-    },
-    {
-      name: "TRỨNG",
-      path: "https://i.ibb.co/rfBf8NF/temp-Picture.jpg",
-      quantity: 1,
-      price: 5000,
-    },
-  ]);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
+    authDomain: "tableorderservice.firebaseapp.com",
+    projectId: "tableorderservice",
+    storageBucket: "tableorderservice.appspot.com",
+    messagingSenderId: "789767582873",
+    appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
+    measurementId: "G-25TT028B48",
+  };
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const firestore = getFirestore(app);
+  const router = useRouter();
+  const [products, setProducts] = useState<
+    Array<{
+      id: string;
+      quantity: number;
+      name: string;
+      price: number;
+      path: string;
+      type: string;
+    }>
+  >([]);
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      setProducts(JSON.parse(storedCartItems));
+    }
+  }, []);
 
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-
-  useEffect(() => {
-    const userAgent =
-      typeof window.navigator === "undefined" ? "" : navigator.userAgent;
-    setIsMobile(
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        userAgent
-      )
-    );
-  }, []);
 
   // Hàm tăng số lượng sản phẩm
   const increaseQuantity = (index: number) => {
@@ -55,6 +64,10 @@ const Cart = () => {
       newProducts[index].quantity--;
       setProducts(newProducts);
     }
+    if (newProducts[index].quantity === 0) {
+      newProducts.splice(index, 1);
+      setProducts(newProducts);
+    }
   };
 
   // Tính tổng giá trị của các sản phẩm trong giỏ hàng
@@ -66,10 +79,24 @@ const Cart = () => {
     return totalPrice;
   };
 
-  const router = useRouter();
-
   const handleExit = () => {
     router.push("/cus_service/menu"); // Điều hướng về trang chính (home)
+  };
+  const sendOrder = () => {
+    const orderRef = collection(firestore, "OrderDetails");
+    const order = {
+      order_id: Date.now().toString(),
+      items: products.map((product) => ({
+        menu_id: product.id,
+        quantity: product.quantity,
+        orderdetails_price: product.quantity * product.price,
+      })),
+    };
+    setShowSuccessMessage(true);
+    addDoc(orderRef, order).then(() => {
+      setProducts([]);
+      localStorage.removeItem("cartItems");
+    });
   };
 
   return (
@@ -95,8 +122,8 @@ const Cart = () => {
         </Typography>
       </Box>
       {/* Hiểnthị*/}
-      <Box>
-        <Stack spacing={1}>
+      <Box sx={{ p: "20px 0px 0px 0px" }}>
+        <Stack display="flex" gap="20px">
           {products.map((product, index) => (
             <Stack
               key={index}
@@ -134,7 +161,7 @@ const Cart = () => {
                     InputProps={{
                       style: {
                         fontSize: "15px",
-                        background: "transparent", // Đặt màu nền thành trong suốt
+                        background: "transparent",
                       },
                     }}
                   />
@@ -147,7 +174,10 @@ const Cart = () => {
                         textAlign: "right",
                       }}
                     >
-                      {product.quantity * product.price} VND
+                      {(product.quantity * product.price).toLocaleString(
+                        "vi-VN"
+                      )}{" "}
+                      VND
                     </Typography>
                     <Stack
                       sx={{ justifyContent: "flex-end" }}
@@ -184,6 +214,41 @@ const Cart = () => {
           ))}
         </Stack>
       </Box>
+      {/* Hiên thi thong bao */}
+      {showSuccessMessage && (
+        <Box
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0, 128, 0, 0.8)",
+            color: "white",
+            padding: "10px",
+            width: "200px",
+            height: "100px",
+            borderRadius: "8px",
+            zIndex: 9999,
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography>Chọn món thành công!</Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setShowSuccessMessage(false);
+              router.push("/cus_service/menu");
+            }}
+            style={{ marginTop: "20px" }}
+          >
+            Oke
+          </Button>
+        </Box>
+      )}
 
       {/* Hiển thị tổng giá trị */}
       <Typography
@@ -195,7 +260,7 @@ const Cart = () => {
           mr: "5px",
         }}
       >
-        Tổng cộng: {calculateTotalPrice()} VND
+        Tổng cộng: {calculateTotalPrice().toLocaleString("vi-VN")} VND
       </Typography>
 
       {/* Button điều hướng và thoát */}
@@ -213,6 +278,7 @@ const Cart = () => {
           <Button
             variant="contained"
             style={{ width: "100%", background: "#C50023", color: "#ffffff" }}
+            onClick={sendOrder}
           >
             Gửi đơn
           </Button>

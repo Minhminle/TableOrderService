@@ -1,31 +1,81 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Grid, ListItem, Stack, Typography } from "@mui/material";
-import { Menu, useFetchMenus } from "@/models/Menu";
+import { initializeApp } from "firebase/app";
+import { useRouter } from "next/router";
+import {
+  DocumentData,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
+  doc,
+  getFirestore,
+  DocumentReference,
+} from "firebase/firestore";
+import Image from "next/image";
+import { collection, addDoc, getDocs, getDoc } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  ListItem,
+  Stack,
+  Typography,
+} from "@mui/material";
+
+class Menu {
+  id: string;
+  name: string;
+  price: number;
+  path: string;
+  type: string;
+  constructor(
+    id: string,
+    name: string,
+    price: number,
+    path: string,
+    type: string
+  ) {
+    this.id = id;
+    this.name = name;
+    this.price = price;
+    this.path = path;
+    this.type = type;
+  }
+}
 
 const Home = () => {
-  const fetchedMenus = useFetchMenus();
   const [menus, setMenus] = useState<Menu[]>([]);
-
-  useEffect(() => {
-    setMenus(fetchedMenus); // Cập nhật state menus sau khi fetch dữ liệu thành công
-  }, [fetchedMenus]);
-
   const [showMenu, setShowMenu] = useState<boolean>(true);
-  const [previousShowMenu, setPreviousShowMenu] = useState<boolean>(true);
   const [showMenuDetail, sethSowMenuDetail] = useState<boolean>(false);
   const [showTypeList, setShowTypeList] = useState(false);
   const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
   const [selectedType, setSelectedType] = useState("All");
   const [cartItems, setCartItems] = useState<
-    { id: string; quantity: number }[]
+    {
+      id: string;
+      quantity: number;
+      name: string;
+      price: number;
+      path: string;
+      type: string;
+    }[]
   >([]);
+
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-
+  const router = useRouter();
+  const handleViewCart = () => {
+    router.push(`/cus_service/cart?items`);
+  };
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      setCartItems(JSON.parse(storedCartItems));
+    }
+  }, []);
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
-    setPreviousShowMenu((prevShowMenu) => !prevShowMenu);
-    setShowMenu(!previousShowMenu);
+    setShowMenu(false);
     sethSowMenuDetail(false);
     setSelectedType("All");
   };
@@ -43,56 +93,97 @@ const Home = () => {
     setSelectedType(type);
   };
 
-  const typeMapping = {
-    All: "Tất cả",
-    Pickle: "Đồ chua - Bánh mì",
-    Beverages: "Nước ngọt - Trà",
-    Beef: "Bò nướng",
-    Meat: "Heo - Gà - Hải sản",
-    Soda: "Soda mùi",
-    Vegetable: "Rau nướng",
-    Hotpots: "Lẩu",
-    Combo: "Combo Nướng & Lẩu",
-    Sausace: "Sốt",
-  };
+  useEffect(() => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
+      authDomain: "tableorderservice.firebaseapp.com",
+      projectId: "tableorderservice",
+      storageBucket: "tableorderservice.appspot.com",
+      messagingSenderId: "789767582873",
+      appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
+      measurementId: "G-25TT028B48",
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  const getTypeName = (type: keyof typeof typeMapping) =>
-    typeMapping[type] || type;
-
-  const typeImage = {
-    All: "https://i.ibb.co/0tF7fyd/all.jpg",
-    Pickle: "https://i.ibb.co/0n30TwX/Pickle.jpg",
-    Beef: "https://i.ibb.co/DLwJ2Mg/beef.jpg",
-    Hotpots: "https://i.ibb.co/y8Ndcqs/hotpot.jpg",
-    Sausace: "https://i.ibb.co/kSsJ3CJ/sausace.jpg",
-    Beverages: "https://i.ibb.co/Dw8JDmM/Beverages.jpg",
-    Soda: "https://i.ibb.co/mtSMfm2/soda.jpg",
-    Combo: "https://i.ibb.co/jGFHGzj/combo.jpg",
-    Meat: "https://i.ibb.co/8dH5kK4/meat.jpg",
-    Vegetable: "https://i.ibb.co/xmcdkwk/vegetable.jpg",
-  };
-
-  const getTypeImage = (type: keyof typeof typeImage) =>
-    typeImage[type] || type;
+    const fetchData = async () => {
+      try {
+        const menuCollection = collection(db, "Menus");
+        const menuSnapshot = await getDocs(menuCollection);
+        const menuList = menuSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return new Menu(doc.id, data.name, data.price, data.path, data.type);
+        });
+        setMenus(menuList);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+    fetchData();
+    return () => {};
+  }, []);
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      setCartItems(JSON.parse(storedCartItems));
+    }
+  }, []);
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      const parsedCartItems = JSON.parse(storedCartItems);
+      setCartItems(parsedCartItems);
+      // Kiểm tra nếu parsedCartItems là một mảng trước khi sử dụng map
+      if (Array.isArray(parsedCartItems)) {
+        const newSelectedItems = parsedCartItems.map((item) => item.id);
+        setSelectedItems(newSelectedItems);
+      }
+    }
+  }, []);
 
   const handleAddToCart = (menuId: string) => {
-    const existingItemIndex = cartItems.findIndex((item) => item.id === menuId);
-    if (existingItemIndex === -1) {
-      // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
-      console.log("Adding item with ID:", menuId);
-      setCartItems((prevCartItems) => [
-        ...prevCartItems,
-        { id: menuId, quantity: 1 },
-      ]);
-      setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
-    } else {
-      // Nếu món đã có trong giỏ hàng, loại bỏ nó khỏi giỏ hàng
-      console.log("Removing item with ID:", menuId);
-      const updatedCartItems = cartItems.filter((item) => item.id !== menuId);
-      setCartItems(updatedCartItems);
-      setSelectedItems((prevSelectedItems) =>
-        prevSelectedItems.filter((id) => id !== menuId)
+    const menuItem = menus.find((menu) => menu.id === menuId);
+
+    if (menuItem) {
+      const existingItemIndex = cartItems.findIndex(
+        (item) => item.id === menuId
       );
+
+      if (existingItemIndex === -1) {
+        const newCartItem = {
+          id: menuItem.id,
+          name: menuItem.name,
+          price: menuItem.price,
+          path: menuItem.path,
+          type: menuItem.type,
+          quantity: 1,
+        };
+        const newCartItems = [...cartItems, newCartItem];
+        setCartItems(newCartItems);
+        setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
+        localStorage.setItem("cartItems", JSON.stringify(newCartItems)); // Thêm vào local storage
+      } else {
+        if (selectedItems.includes(menuId)) {
+          const newCartItems = cartItems.filter((item) => item.id !== menuId);
+          setCartItems(newCartItems);
+          setSelectedItems((prevSelectedItems) =>
+            prevSelectedItems.filter((id) => id !== menuId)
+          );
+          localStorage.setItem("cartItems", JSON.stringify(newCartItems)); // Cập nhật local storage
+        } else {
+          const newCartItems = cartItems.map((item) =>
+            item.id === menuId ? { ...item, quantity: item.quantity + 1 } : item
+          );
+          setCartItems(newCartItems);
+          setSelectedItems((prevSelectedItems) => [
+            ...prevSelectedItems,
+            menuId,
+          ]);
+          localStorage.setItem("cartItems", JSON.stringify(newCartItems)); // Cập nhật local storage
+        }
+      }
+    } else {
+      console.error("Menu item not found!");
     }
   };
 
@@ -123,8 +214,8 @@ const Home = () => {
               sx={{
                 color: "#ffffff",
                 fontWeight: 600,
-                fontSize: "22px",
               }}
+              variant="h5"
             >
               THỰC ĐƠN
             </Typography>
@@ -132,7 +223,7 @@ const Home = () => {
           <Button
             variant="contained"
             color="error"
-            sx={{ borderRadius: 5, width: "200px" }}
+            sx={{ borderRadius: 5, minWidth: "150px" }}
             onClick={() => handleTypeClick()}
           >
             <Stack
@@ -141,10 +232,7 @@ const Home = () => {
               alignItems="center"
               gap="10px"
             >
-              <Typography style={{ fontSize: "12px" }}>
-                {/* {selectedType} */}
-                {getTypeName(selectedType as keyof typeof typeMapping)}
-              </Typography>
+              <Typography>{selectedType}</Typography>
               <Box
                 component="img"
                 width="5"
@@ -186,9 +274,7 @@ const Home = () => {
                           >
                             <Box
                               component="img"
-                              src={getTypeImage(
-                                type as keyof typeof typeMapping
-                              )}
+                              src={firstMenuItem.path}
                               sx={{
                                 maxWidth: "100px",
                                 maxHeight: "100px",
@@ -197,7 +283,7 @@ const Home = () => {
                               }}
                             />
                             <Typography sx={{ fontWeight: 700 }}>
-                              {getTypeName(type as keyof typeof typeMapping)}
+                              {type}
                             </Typography>
                           </Stack>
                         </Box>
@@ -266,7 +352,6 @@ const Home = () => {
           </Stack>
         )}
 
-        {/* Hienmenu */}
         {showMenu && (
           <Box sx={{ p: "16px 10px 16px 10px" }}>
             <Grid container spacing={2}>
@@ -309,9 +394,7 @@ const Home = () => {
                           }}
                         />
 
-                        <Typography
-                          sx={{ fontWeight: 700, textAlign: "center" }}
-                        >
+                        <Typography sx={{ fontWeight: 700 }}>
                           {menu.name}
                         </Typography>
                         <Typography sx={{ fontWeight: 700 }}>
@@ -327,7 +410,7 @@ const Home = () => {
 
         {/* Nutmuahang */}
         <Box sx={{ position: "fixed", bottom: "30px", right: "15px" }}>
-          <Button sx={{ borderRadius: "100%" }} href="cart">
+          <Button sx={{ borderRadius: "100%" }} onClick={handleViewCart}>
             <img
               width="50"
               height="50"
