@@ -16,6 +16,7 @@ import { initializeApp } from "firebase/app";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { getDatabase, ref, push } from "firebase/database";
 const Cart = () => {
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const firebaseConfig = {
     apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
     authDomain: "tableorderservice.firebaseapp.com",
@@ -91,15 +92,10 @@ const Cart = () => {
         orderdetails_price: product.quantity * product.price,
       })),
     };
-
-    addDoc(orderRef, order)
-      .then(() => {
-        console.log("Đơn hàng đã được gửi thành công!");
-        setProducts([]);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi gửi đơn hàng: ", error);
-      });
+    setShowSuccessMessage(true);
+    addDoc(orderRef, order).then(() => {
+      setProducts([]);
+    });
   };
 
   return (
@@ -217,6 +213,41 @@ const Cart = () => {
           ))}
         </Stack>
       </Box>
+      {/* Hiên thi thong bao */}
+      {showSuccessMessage && (
+        <Box
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0, 128, 0, 0.8)",
+            color: "white",
+            padding: "10px",
+            width: "200px",
+            height: "100px",
+            borderRadius: "8px",
+            zIndex: 9999,
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography>Chọn món thành công!</Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setShowSuccessMessage(false);
+              router.push("/cus_service/menu");
+            }}
+            style={{ marginTop: "20px" }}
+          >
+            Oke
+          </Button>
+        </Box>
+      )}
 
       {/* Hiển thị tổng giá trị */}
       <Typography
