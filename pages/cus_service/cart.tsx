@@ -13,7 +13,7 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 import firebase from "firebase/compat/app";
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { getDatabase, ref, push } from "firebase/database";
 const Cart = () => {
   const firebaseConfig = {
@@ -27,7 +27,7 @@ const Cart = () => {
   };
   const app = initializeApp(firebaseConfig);
   const database = getDatabase(app);
-  const orderRef = ref(database, "OrderDetails");
+  const firestore = getFirestore(app);
   const router = useRouter();
   const [products, setProducts] = useState<
     Array<{
@@ -40,14 +40,11 @@ const Cart = () => {
     }>
   >([]);
   useEffect(() => {
-    if (router.query && router.query.items) {
-      const queryParams = Array.isArray(router.query.items)
-        ? router.query.items[0]
-        : router.query.items;
-      const decodedItems = JSON.parse(decodeURIComponent(queryParams));
-      setProducts(decodedItems);
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      setProducts(JSON.parse(storedCartItems));
     }
-  }, [router.query]);
+  }, []);
 
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
@@ -84,26 +81,26 @@ const Cart = () => {
   const handleExit = () => {
     router.push("/cus_service/menu"); // Điều hướng về trang chính (home)
   };
-  function sendOrder(
-    products: {
-      id: string;
-      quantity: number;
-      name: string;
-      price: number;
-      path: string;
-      type: string;
-    }[]
-  ) {
-    // Gửi toàn bộ mảng products lên Firebase Realtime Database
-    orderRef
-      .set(products) // Gửi dữ liệu của toàn bộ mảng lên Firebase
+  const sendOrder = () => {
+    const orderRef = collection(firestore, "OrderDetails");
+    const order = {
+      order_id: Date.now().toString(),
+      items: products.map((product) => ({
+        menu_id: product.id,
+        quantity: product.quantity,
+        orderdetails_price: product.quantity * product.price,
+      })),
+    };
+
+    addDoc(orderRef, order)
       .then(() => {
-        console.log("Data sent successfully!");
+        console.log("Đơn hàng đã được gửi thành công!");
+        setProducts([]);
       })
       .catch((error) => {
-        console.error("Error sending data: ", error);
+        console.error("Lỗi khi gửi đơn hàng: ", error);
       });
-  }
+  };
 
   return (
     <>
@@ -167,7 +164,7 @@ const Cart = () => {
                     InputProps={{
                       style: {
                         fontSize: "15px",
-                        background: "transparent", // Đặt màu nền thành trong suốt
+                        background: "transparent",
                       },
                     }}
                   />
@@ -249,7 +246,7 @@ const Cart = () => {
           <Button
             variant="contained"
             style={{ width: "100%", background: "#C50023", color: "#ffffff" }}
-            onClick={() => sendOrder}
+            onClick={sendOrder}
           >
             Gửi đơn
           </Button>

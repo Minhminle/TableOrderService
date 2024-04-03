@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { useRouter } from "next/router";
-import { getFirestore } from "firebase/firestore";
+import {
+  DocumentData,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
+  doc,
+  getFirestore,
+  DocumentReference,
+} from "firebase/firestore";
 import Image from "next/image";
 import { collection, addDoc, getDocs, getDoc } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import { Box, Button, Grid, ListItem, Stack, Typography } from "@mui/material";
-import firebase from "firebase/compat/app";
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  ListItem,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 class Menu {
   id: string;
@@ -46,14 +60,19 @@ const Home = () => {
       type: string;
     }[]
   >([]);
+
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
   const handleViewCart = () => {
-    const queryParams = encodeURIComponent(JSON.stringify(cartItems));
-    router.push(`/cus_service/cart?items=${queryParams}`);
+    router.push(`/cus_service/cart?items`);
   };
-
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      setCartItems(JSON.parse(storedCartItems));
+    }
+  }, []);
   const handleTypeClick = () => {
     setShowTypeList(!showTypeList);
     setShowMenu(false);
@@ -103,55 +122,64 @@ const Home = () => {
     fetchData();
     return () => {};
   }, []);
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      setCartItems(JSON.parse(storedCartItems));
+    }
+  }, []);
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem("cartItems");
+    if (storedCartItems) {
+      const parsedCartItems = JSON.parse(storedCartItems);
+      setCartItems(parsedCartItems);
+      // Kiểm tra nếu parsedCartItems là một mảng trước khi sử dụng map
+      if (Array.isArray(parsedCartItems)) {
+        const newSelectedItems = parsedCartItems.map((item) => item.id);
+        setSelectedItems(newSelectedItems);
+      }
+    }
+  }, []);
 
   const handleAddToCart = (menuId: string) => {
-    // Tìm mặt hàng trong danh sách menu dựa trên menuId
     const menuItem = menus.find((menu) => menu.id === menuId);
+
     if (menuItem) {
-      // Kiểm tra xem mặt hàng đã có trong giỏ hàng chưa
       const existingItemIndex = cartItems.findIndex(
         (item) => item.id === menuId
       );
+
       if (existingItemIndex === -1) {
-        // Nếu món chưa có trong giỏ hàng, thêm vào giỏ hàng với số lượng là 1
-        console.log("Adding item with ID:", menuId);
-        setCartItems((prevCartItems) => [
-          ...prevCartItems,
-          {
-            id: menuItem.id,
-            name: menuItem.name,
-            price: menuItem.price,
-            path: menuItem.path,
-            type: menuItem.type,
-            quantity: 1,
-          },
-        ]);
+        const newCartItem = {
+          id: menuItem.id,
+          name: menuItem.name,
+          price: menuItem.price,
+          path: menuItem.path,
+          type: menuItem.type,
+          quantity: 1,
+        };
+        const newCartItems = [...cartItems, newCartItem];
+        setCartItems(newCartItems);
         setSelectedItems((prevSelectedItems) => [...prevSelectedItems, menuId]);
+        localStorage.setItem("cartItems", JSON.stringify(newCartItems)); // Thêm vào local storage
       } else {
-        // Nếu món đã có trong giỏ hàng, kiểm tra xem nó đã được chọn hay chưa
         if (selectedItems.includes(menuId)) {
-          // Nếu đã được chọn, bỏ món ra khỏi giỏ hàng
-          console.log("Removing item with ID:", menuId);
-          setCartItems((prevCartItems) =>
-            prevCartItems.filter((item) => item.id !== menuId)
-          );
+          const newCartItems = cartItems.filter((item) => item.id !== menuId);
+          setCartItems(newCartItems);
           setSelectedItems((prevSelectedItems) =>
             prevSelectedItems.filter((id) => id !== menuId)
           );
+          localStorage.setItem("cartItems", JSON.stringify(newCartItems)); // Cập nhật local storage
         } else {
-          // Nếu chưa được chọn, tăng số lượng lên 1
-          console.log("Incrementing quantity for item with ID:", menuId);
-          setCartItems((prevCartItems) =>
-            prevCartItems.map((item) =>
-              item.id === menuId
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            )
+          const newCartItems = cartItems.map((item) =>
+            item.id === menuId ? { ...item, quantity: item.quantity + 1 } : item
           );
+          setCartItems(newCartItems);
           setSelectedItems((prevSelectedItems) => [
             ...prevSelectedItems,
             menuId,
           ]);
+          localStorage.setItem("cartItems", JSON.stringify(newCartItems)); // Cập nhật local storage
         }
       }
     } else {
@@ -166,19 +194,6 @@ const Home = () => {
     );
     setCartTotal(totalItems);
   }, [cartItems]);
-  const sendOrder = () => {
-    const orderRef = firebase.database().ref("OrderDetails");
-    orderRef
-      .push(cartItems)
-      .then(() => {
-        console.log("Data sent successfully!");
-
-        setCartItems([]);
-      })
-      .catch((error) => {
-        console.error("Error sending data: ", error);
-      });
-  };
 
   return (
     <>
@@ -337,7 +352,6 @@ const Home = () => {
           </Stack>
         )}
 
-        {/* Hienmenu */}
         {showMenu && (
           <Box sx={{ p: "16px 10px 16px 10px" }}>
             <Grid container spacing={2}>
