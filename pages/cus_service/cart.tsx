@@ -95,6 +95,7 @@ const Cart = () => {
     setShowSuccessMessage(true);
     addDoc(orderRef, order).then(() => {
       setProducts([]);
+      localStorage.removeItem("cartItems");
     });
   };
 
