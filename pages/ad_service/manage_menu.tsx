@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Menu, useFetchMenus } from "@/models/Menu";
+import { firebaseConfig } from "@/models/Config";
 import { initializeApp } from "firebase/app";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -33,6 +34,9 @@ import "react-confirm-alert/src/react-confirm-alert.css"; // Import CSS cho reac
 
 const ManageMenu = () => {
   const fetchedMenus = useFetchMenus();
+  const app = initializeApp(firebaseConfig);
+  const firestore = getFirestore(app);
+
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [newMenuName, setNewMenuName] = useState("");
@@ -75,18 +79,6 @@ const ManageMenu = () => {
 
   const handleAddMenu = async () => {
     try {
-      const firebaseConfig = {
-        apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
-        authDomain: "tableorderservice.firebaseapp.com",
-        projectId: "tableorderservice",
-        storageBucket: "tableorderservice.appspot.com",
-        messagingSenderId: "789767582873",
-        appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
-        measurementId: "G-25TT028B48",
-      };
-      const app = initializeApp(firebaseConfig);
-      const firestore = getFirestore(app);
-
       // Lấy tham chiếu đến dịch vụ lưu trữ Firebase
       const storage = getStorage(app);
 
@@ -152,18 +144,6 @@ const ManageMenu = () => {
           {
             label: "Có",
             onClick: async () => {
-              const firebaseConfig = {
-                apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
-                authDomain: "tableorderservice.firebaseapp.com",
-                projectId: "tableorderservice",
-                storageBucket: "tableorderservice.appspot.com",
-                messagingSenderId: "789767582873",
-                appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
-                measurementId: "G-25TT028B48",
-              };
-              const app = initializeApp(firebaseConfig);
-              const firestore = getFirestore(app);
-
               // Xóa menu khỏi Firestore dựa trên menuId
               await deleteDoc(doc(firestore, "Menus", menuId));
 
@@ -197,22 +177,9 @@ const ManageMenu = () => {
 
   const handleSaveMenu = async () => {
     try {
-      const firebaseConfig = {
-        apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
-        authDomain: "tableorderservice.firebaseapp.com",
-        projectId: "tableorderservice",
-        storageBucket: "tableorderservice.appspot.com",
-        messagingSenderId: "789767582873",
-        appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
-        measurementId: "G-25TT028B48",
-      };
-
       if (!editMenu) {
         return; // Nếu editMenu là null thì không thực hiện các xử lý tiếp theo
       }
-
-      const app = initializeApp(firebaseConfig);
-      const firestore = getFirestore(app);
       const storage = getStorage(app);
 
       // Nếu người dùng đã chọn một hình ảnh mới
