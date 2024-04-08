@@ -39,6 +39,7 @@ const ManageMenu = () => {
 
   const [showMenu, setShowMenu] = useState<boolean>(true);
   const [menus, setMenus] = useState<Menu[]>([]);
+
   const [newMenuName, setNewMenuName] = useState("");
   const [newMenuPrice, setNewMenuPrice] = useState("");
   const [newMenuImage, setNewMenuImage] = useState<File | null>(null); // State để lưu trữ hình ảnh
@@ -89,7 +90,7 @@ const ManageMenu = () => {
 
       // Lấy tên file hình ảnh từ state
       const fileName = newMenuImage.name;
-      const storageRef = ref(storage, "menuImages/${fileName}");
+      const storageRef = ref(storage, `menuImages/${fileName}`);
       await uploadBytes(storageRef, newMenuImage);
 
       // Lấy đường dẫn của hình ảnh đã tải lên
@@ -186,7 +187,7 @@ const ManageMenu = () => {
       if (newMenuImage) {
         // Tải hình ảnh mới lên Firebase Storage
         const fileName = newMenuImage.name;
-        const storageRef = ref(storage, "menuImages/${fileName}");
+        const storageRef = ref(storage, `menuImages/${fileName}`);
         await uploadBytes(storageRef, newMenuImage);
 
         // Lấy đường dẫn mới của hình ảnh
@@ -230,6 +231,7 @@ const ManageMenu = () => {
 
   return (
     <>
+      {/* thêm món mới */}
       <Grid container direction="column" alignItems="center">
         <Box>
           <Typography>Tên món</Typography>

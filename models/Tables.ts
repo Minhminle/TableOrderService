@@ -5,8 +5,8 @@ import { firebaseConfig } from "@/models/Config";
 
 export class Table {
   table_number: number;
-  status: string;
-  constructor(table_number: number, status: string) {
+  status: boolean;
+  constructor(table_number: number, status: boolean) {
     this.table_number = table_number;
     this.status = status;
   }
