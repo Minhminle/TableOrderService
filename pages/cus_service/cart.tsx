@@ -55,6 +55,7 @@ const Cart = () => {
     const newProducts = [...products];
     newProducts[index].quantity++;
     setProducts(newProducts);
+    localStorage.setItem("cartItems", JSON.stringify(newProducts));
   };
 
   // Hàm giảm số lượng sản phẩm
@@ -63,10 +64,12 @@ const Cart = () => {
     if (newProducts[index].quantity > 0) {
       newProducts[index].quantity--;
       setProducts(newProducts);
+      localStorage.removeItem("cartItems");
     }
     if (newProducts[index].quantity === 0) {
       newProducts.splice(index, 1);
       setProducts(newProducts);
+      localStorage.setItem("cartItems", JSON.stringify(newProducts));
     }
   };
 
@@ -90,6 +93,7 @@ const Cart = () => {
         menu_id: product.id,
         quantity: product.quantity,
         orderdetails_price: product.quantity * product.price,
+        static_item: true,
       })),
     };
     setShowSuccessMessage(true);
