@@ -21,6 +21,11 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import AddIcon from "@mui/icons-material/Add";
 import { Menu, useFetchMenus } from "@/models/Menu";
+import {
+  OrderItem,
+  OrderDetails,
+  useFetchOrderDetails,
+} from "@/models/OrderDetails";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   getFirestore,
@@ -42,7 +47,11 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 
 const ManageTable = () => {
   const tables = useFetchTables();
+  const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
+  const orderDetails = useFetchOrderDetails(selectedTableId);
+
   const fetchedMenus = useFetchMenus();
+
   const app = initializeApp(firebaseConfig);
   const firestore = getFirestore(app);
 
@@ -78,6 +87,14 @@ const ManageTable = () => {
     newValue: number | number[]
   ) => {
     setValue(newValue);
+  };
+
+  const handleTableClick = (tableId: string) => {
+    setSelectedTableId(tableId);
+  };
+
+  const findMenuById = (menuId: string) => {
+    return menus.find((menu) => menu.id === menuId);
   };
 
   // Sử dụng hook useFetchMenus trực tiếp trong component
@@ -308,11 +325,33 @@ const ManageTable = () => {
                           background: table.status ? "" : "white",
                           color: table.status ? "white" : "black",
                         }}
+                        onClick={() => handleTableClick(table.id)}
                       >
                         {`Bàn số ${table.table_number}`}
                       </Button>
                     </Grid>
                   ))}
+              </Grid>
+              <Grid item xs={5}>
+                {/* Render order details based on selectedTableId */}
+                {orderDetails.map((orderDetail, orderIndex) => (
+                  <div key={orderIndex}>
+                    {/* Lặp qua từng mục trong orderDetail.items */}
+                    {orderDetail.items.map((item, index) => (
+                      <div key={index}>
+                        <p>Menu ID: {item.menu_id}</p>
+                        {findMenuById(item.menu_id) && (
+                          <div>
+                            <p>Name: {findMenuById(item.menu_id)?.name}</p>
+                            {/* Add other menu information here */}
+                          </div>
+                        )}
+                        <p>Price: {item.orderdetails_price}</p>
+                        <p>Quantity: {item.quantity}</p>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </Grid>
             </Grid>
             <Grid item xs={5}>

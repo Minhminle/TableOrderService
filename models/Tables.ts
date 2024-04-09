@@ -4,9 +4,11 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { firebaseConfig } from "@/models/Config";
 
 export class Table {
+  id: string;
   table_number: number;
   status: boolean;
-  constructor(table_number: number, status: boolean) {
+  constructor(id: string, table_number: number, status: boolean) {
+    this.id = id;
     this.table_number = table_number;
     this.status = status;
   }
@@ -25,7 +27,7 @@ export function useFetchTables() {
         const tablesSnapshot = await getDocs(tablesCollection);
         const tablesList = tablesSnapshot.docs.map((doc) => {
           const data = doc.data();
-          return new Table(data.table_number, data.status);
+          return new Table(doc.id, data.table_number, data.status);
         });
         setTables(tablesList);
       } catch (error) {
