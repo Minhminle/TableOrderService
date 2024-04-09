@@ -336,6 +336,7 @@ const ManageTable = () => {
                 {/* Render order details based on selectedTableId */}
                 {orderDetails.map((orderDetail, orderIndex) => (
                   <div key={orderIndex}>
+                    <p>Payment: {orderDetail.paymentStatus.toString()}</p>
                     {/* Lặp qua từng mục trong orderDetail.items */}
                     {orderDetail.items.map((item, index) => (
                       <div key={index}>
