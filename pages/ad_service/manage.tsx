@@ -332,78 +332,108 @@ const ManageTable = () => {
                     </Grid>
                   ))}
               </Grid>
-              <Grid item xs={5}>
-                {/* Render order details based on selectedTableId */}
-                {orderDetails.map((orderDetail, orderIndex) => (
-                  <div key={orderIndex}>
-                    <p>Payment: {orderDetail.paymentStatus.toString()}</p>
-                    {/* Lặp qua từng mục trong orderDetail.items */}
-                    {orderDetail.items.map((item, index) => (
-                      <div key={index}>
-                        <p>Menu ID: {item.menu_id}</p>
-                        {findMenuById(item.menu_id) && (
-                          <div>
-                            <p>Name: {findMenuById(item.menu_id)?.name}</p>
-                            {/* Add other menu information here */}
-                          </div>
-                        )}
-                        <p>Price: {item.orderdetails_price}</p>
-                        <p>Quantity: {item.quantity}</p>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </Grid>
             </Grid>
             <Grid item xs={5}>
+              <Typography fontSize={"30px"} fontWeight={"bolder"}>
+                Phiếu Thanh Toán
+              </Typography>
+              {/* Phần orderDetails */}
+              <Box
+                sx={{
+                  padding: 2,
+                  background: "#fff",
+                  maxHeight: "400px", // Giữ phần orderDetails cách phần tổng tiền và các nút
+                  overflowY: "auto", // Tạo thanh cuộn khi nội dung vượt quá kích thước
+                }}
+              >
+                {/* Phần orderDetails */}
+                <Grid item xs={12}>
+                  {/* Render order details based on selectedTableId */}
+                  {orderDetails.map((orderDetail, orderIndex) => (
+                    <div key={orderIndex}>
+                      {/* Lặp qua từng mục trong orderDetail.items */}
+                      {orderDetail.items.map((item, index) => (
+                        <div key={index}>
+                          <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                              {/* Tên và thông tin khác về menu */}
+                              <Typography variant="subtitle1">
+                                {findMenuById(item.menu_id)?.name}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={1}>
+                              <Typography variant="subtitle1">
+                                {item.quantity}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={2}>
+                              <Typography variant="subtitle1">
+                                {item.orderdetails_price}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <Typography variant="subtitle1">
+                                {item.orderdetails_price.toLocaleString(
+                                  "vi-VN"
+                                )}{" "}
+                                VNĐ
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </Grid>
+              </Box>
+              {/* Phần tổng tiền và các nút */}
               <Box
                 sx={{
                   position: "fixed",
                   bottom: 0,
                   padding: 2,
                   background: "#fff",
+                  marginTop: 2, // Tạo khoảng cách giữa phần orderDetails và phần tổng tiền và các nút
+                  width: "100%",
                 }}
               >
-                <Stack direction="column" spacing={2}>
-                  <Stack direction="row" spacing={3}>
-                    <Stack direction="row" spacing={2}></Stack>
-                    <Typography>Tổng tiền:</Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={2}>
-                    <Button
-                      variant="contained"
-                      style={{
-                        height: "50px",
-                        width: "150px",
-                        color: "white",
-                        backgroundColor: "gray",
-                      }}
-                    >
-                      Tạm Tính
-                    </Button>
-                    <Button
-                      variant="contained"
-                      style={{
-                        height: "50px",
-                        width: "150px",
-                        color: "white",
-                        backgroundColor: "green",
-                      }}
-                    >
-                      Thanh Toán
-                    </Button>
-                    <Button
-                      variant="contained"
-                      style={{
-                        height: "50px",
-                        width: "150px",
-                        background: "#ffffff",
-                        color: "gray",
-                      }}
-                    >
-                      Thông Báo
-                    </Button>
-                  </Stack>
+                <Stack direction="row" spacing={3}>
+                  <Typography>Tổng tiền:</Typography>
+                </Stack>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    style={{
+                      height: "50px",
+                      width: "150px",
+                      color: "white",
+                      backgroundColor: "gray",
+                    }}
+                  >
+                    Tạm Tính
+                  </Button>
+                  <Button
+                    variant="contained"
+                    style={{
+                      height: "50px",
+                      width: "150px",
+                      color: "white",
+                      backgroundColor: "green",
+                    }}
+                  >
+                    Thanh Toán
+                  </Button>
+                  <Button
+                    variant="contained"
+                    style={{
+                      height: "50px",
+                      width: "150px",
+                      background: "#ffffff",
+                      color: "gray",
+                    }}
+                  >
+                    Thông Báo
+                  </Button>
                 </Stack>
               </Box>
             </Grid>
