@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import {
   Box,
   Button,
-  Grid,
   IconButton,
   Stack,
   TextField,
@@ -11,10 +10,8 @@ import {
 } from "@mui/material";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
-import firebase from "firebase/compat/app";
 import { initializeApp } from "firebase/app";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
-import { getDatabase, ref, push } from "firebase/database";
 const Cart = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const firebaseConfig = {
@@ -27,17 +24,19 @@ const Cart = () => {
     measurementId: "G-25TT028B48",
   };
   const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
   const firestore = getFirestore(app);
   const router = useRouter();
+  const [note, setNote] = useState(""); // State để lưu trữ giá trị ghi chú
   const [products, setProducts] = useState<
     Array<{
       id: string;
       quantity: number;
+      note: string;
       name: string;
       price: number;
       path: string;
       type: string;
+      tableId: string;
     }>
   >([]);
   useEffect(() => {
@@ -49,7 +48,6 @@ const Cart = () => {
 
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-
   // Hàm tăng số lượng sản phẩm
   const increaseQuantity = (index: number) => {
     const newProducts = [...products];
@@ -57,7 +55,6 @@ const Cart = () => {
     setProducts(newProducts);
     localStorage.setItem("cartItems", JSON.stringify(newProducts));
   };
-
   // Hàm giảm số lượng sản phẩm
   const decreaseQuantity = (index: number) => {
     const newProducts = [...products];
@@ -83,15 +80,29 @@ const Cart = () => {
   };
 
   const handleExit = () => {
-    router.push("/cus_service/menu"); // Điều hướng về trang chính (home)
+    router.push("/cus_service/menu");
   };
+  const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNote(event.target.value); // Cập nhật giá trị ghi chú vào state
+  };
+
+  const totalPrice = calculateTotalPrice().toLocaleString("vi-VN") + 'VND";';
+  const currentDate = new Date();
+  const day = currentDate.getDate();
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+  const formattedDate = `${day}/${month}/${year}`;
   const sendOrder = () => {
     const orderRef = collection(firestore, "OrderDetails");
+    const tableId = products.length > 0 ? products[0].tableId : "";
     const order = {
-      order_id: Date.now().toString(),
+      tableId: tableId,
+      totalPrice: totalPrice,
+      date: formattedDate,
       items: products.map((product) => ({
         menu_id: product.id,
         quantity: product.quantity,
+        note: product.note ? product.note : note,
         orderdetails_price: product.quantity * product.price,
         static_item: true,
       })),
@@ -157,6 +168,8 @@ const Cart = () => {
                   <TextField
                     id="standard-basic"
                     label="Ghi chú"
+                    value={note} // Giá trị ghi chú từ state
+                    onChange={handleNoteChange} // Xử lý sự kiện khi thay đổi ghi chú
                     onFocus={() => setIsKeyboardOpen(true)}
                     onBlur={() => setIsKeyboardOpen(false)}
                     variant="standard"

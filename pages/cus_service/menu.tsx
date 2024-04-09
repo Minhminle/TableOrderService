@@ -58,14 +58,16 @@ const Home = () => {
       price: number;
       path: string;
       type: string;
+      tableId: string;
     }[]
   >([]);
 
   const [cartTotal, setCartTotal] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
+  const tableId = router.query.tableId as string;
   const handleViewCart = () => {
-    router.push(`/cus_service/cart?items`);
+    router.push(`/cus_service/cart?items?tableId=${router.query.tableId}`);
   };
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
@@ -156,6 +158,7 @@ const Home = () => {
           price: menuItem.price,
           path: menuItem.path,
           type: menuItem.type,
+          tableId: tableId,
           quantity: 1,
         };
         const newCartItems = [...cartItems, newCartItem];

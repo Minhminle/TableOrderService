@@ -3,7 +3,7 @@ import React from "react";
 import { Table, useFetchTables } from "@/models/Tables";
 
 const Test = () => {
-  const tables = useFetchTables(); // Sử dụng hook để lấy danh sách bàn
+  const tables = useFetchTables();
 
   return (
     <Box>
@@ -11,9 +11,9 @@ const Test = () => {
       <ul>
         {tables.map((table: Table) => (
           <li key={table.id}>
-            {/* Tạo link tới cus_service/menu/:tableId */}
-            <a href={`/cus_service/menu/?tableId=${table.table_number}`}>
-              Table ID: {table.table_number}
+            {}
+            <a href={`/cus_service/menu/?tableId=${table.id}`}>
+              Table ID: {table.id}
             </a>
           </li>
         ))}
