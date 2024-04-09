@@ -404,8 +404,8 @@ const ManageTable = () => {
                                   alt={menu.name}
                                   src={menu.path}
                                   sx={{
-                                    maxWidth: "120px",
-                                    maxHeight: "120px",
+                                    width: "120px",
+                                    height: "120px",
                                     borderRadius: "16px",
                                   }}
                                 />
