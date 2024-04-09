@@ -14,20 +14,44 @@ export class OrderItem {
   menu_id: string;
   orderdetails_price: number;
   quantity: number;
+  note: string;
+  itemstatus: boolean;
 
-  constructor(menu_id: string, orderdetails_price: number, quantity: number) {
+  constructor(
+    menu_id: string,
+    orderdetails_price: number,
+    quantity: number,
+    note: string = "",
+    itemstatus: boolean = true
+  ) {
     this.menu_id = menu_id;
     this.orderdetails_price = orderdetails_price;
     this.quantity = quantity;
+    this.note = note;
+    this.itemstatus = itemstatus;
   }
 }
 
 // Cập nhật lớp OrderDetails để chứa mảng các mục được chọn
 export class OrderDetails {
   items: OrderItem[];
+  orderDate: Date;
+  orderTime: string;
+  paymentStatus: boolean;
+  totalPrice: number;
 
-  constructor(items: OrderItem[]) {
+  constructor(
+    items: OrderItem[],
+    orderDate: Date,
+    orderTime: string,
+    paymentStatus: boolean = false,
+    totalPrice: number
+  ) {
     this.items = items;
+    this.orderDate = orderDate;
+    this.orderTime = orderTime;
+    this.paymentStatus = paymentStatus;
+    this.totalPrice = totalPrice;
   }
 }
 
@@ -57,7 +81,13 @@ export function useFetchOrderDetails(tableId: string) {
                 item.quantity
               )
           );
-          return new OrderDetails(items);
+          return new OrderDetails(
+            items,
+            data.orderDate,
+            data.orderTime,
+            data.paymentStatus,
+            data.totalPrice
+          );
         });
         setOrderDetails(orderDetailsList);
       } catch (error) {

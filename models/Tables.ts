@@ -7,7 +7,7 @@ export class Table {
   id: string;
   table_number: number;
   status: boolean;
-  constructor(id: string, table_number: number, status: boolean) {
+  constructor(id: string, table_number: number, status: boolean = false) {
     this.id = id;
     this.table_number = table_number;
     this.status = status;
