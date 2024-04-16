@@ -94,11 +94,18 @@ const Cart = () => {
   const formattedDate = `${day}/${month}/${year}`;
   const sendOrder = () => {
     const orderRef = collection(firestore, "OrderDetails");
-    const tableId = products.length > 0 ? products[0].tableId : "";
+    let tableId = "";
+    if (products.length > 0) {
+      const firstProduct = products.find(
+        (product) => product.tableId !== undefined && product.tableId !== null
+      );
+      tableId = firstProduct ? firstProduct.tableId : "";
+    }
     const order = {
       tableId: tableId,
       totalPrice: totalPrice,
       date: formattedDate,
+      paymentStatus: false,
       items: products.map((product) => ({
         menu_id: product.id,
         quantity: product.quantity,
