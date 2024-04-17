@@ -107,7 +107,15 @@ const ManageTable = () => {
       ],
     });
   };
+  const reloadComponent = () => {
+    window.location.reload(); // Reload the entire page
+  };
 
+  // Set up an interval to reload the component every 3 seconds
+  useEffect(() => {
+    const intervalId = setInterval(reloadComponent, 20000); // 3000 milliseconds = 3 seconds
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, []);
   const typeMapping = {
     All: "Tất cả",
     Pickle: "Đồ chua - Bánh mì",
