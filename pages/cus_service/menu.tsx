@@ -28,18 +28,21 @@ class Menu {
   price: number;
   path: string;
   type: string;
+  show: boolean;
   constructor(
     id: string,
     name: string,
     price: number,
     path: string,
-    type: string
+    type: string,
+    show: boolean
   ) {
     this.id = id;
     this.name = name;
     this.price = price;
     this.path = path;
     this.type = type;
+    this.show = show;
   }
 }
 
@@ -114,7 +117,14 @@ const Home = () => {
         const menuSnapshot = await getDocs(menuCollection);
         const menuList = menuSnapshot.docs.map((doc) => {
           const data = doc.data();
-          return new Menu(doc.id, data.name, data.price, data.path, data.type);
+          return new Menu(
+            doc.id,
+            data.name,
+            data.price,
+            data.path,
+            data.type,
+            data.show
+          );
         });
         setMenus(menuList);
       } catch (error) {
@@ -359,7 +369,7 @@ const Home = () => {
           <Box sx={{ p: "16px 10px 16px 10px" }}>
             <Grid container spacing={2}>
               {menus
-                .filter((menu) => menu.price !== 0)
+                .filter((menu) => menu.price !== 0 && menu.show === true)
                 .sort((a, b) => b.price - a.price)
                 .map((menu, index) => (
                   <Grid
