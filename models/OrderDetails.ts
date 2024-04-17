@@ -44,7 +44,7 @@ export class OrderDetails {
     items: OrderItem[],
     orderDate: Date,
     orderTime: string,
-    paymentStatus: boolean = false,
+    paymentStatus: boolean,
     totalPrice: number
   ) {
     this.items = items;
@@ -70,25 +70,27 @@ export function useFetchOrderDetails(tableId: string) {
           where("tableId", "==", tableId)
         );
         const querySnapshot = await getDocs(q);
-        const orderDetailsList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
-          const items = data.items.map(
-            (item: any) =>
-              new OrderItem(
-                item.menu_id,
-                item.orderdetails_price,
-                item.quantity
-              )
-          );
-          return new OrderDetails(
-            items,
-            data.orderDate,
-            data.orderTime,
-            data.paymentStatus,
-            data.totalPrice
-          );
-        });
+        const orderDetailsList = querySnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
+            const items = data.items.map(
+              (item: any) =>
+                new OrderItem(
+                  item.menu_id,
+                  item.orderdetails_price,
+                  item.quantity
+                )
+            );
+            return new OrderDetails(
+              items,
+              data.orderDate,
+              data.orderTime,
+              data.paymentStatus,
+              data.totalPrice
+            );
+          })
+          .filter((orderDetail) => !orderDetail.paymentStatus); // Lọc các đơn hàng có paymentStatus là false
         setOrderDetails(orderDetailsList);
       } catch (error) {
         console.error("Error fetching data: ", error);
