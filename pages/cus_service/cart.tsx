@@ -86,7 +86,7 @@ const Cart = () => {
     setNote(event.target.value); // Cập nhật giá trị ghi chú vào state
   };
 
-  const totalPrice = calculateTotalPrice().toLocaleString("vi-VN") + 'VND";';
+  const totalPrice = calculateTotalPrice().toLocaleString("vi-VN") + "VND";
   const currentDate = new Date();
   const day = currentDate.getDate();
   const month = currentDate.getMonth();
@@ -106,6 +106,7 @@ const Cart = () => {
       tableId: tableId,
       totalPrice: totalPrice,
       date: formattedDate,
+      paymentStatus: false,
       items: products.map((product) => ({
         menu_id: product.id,
         quantity: product.quantity,
