@@ -106,7 +106,6 @@ const Cart = () => {
       tableId: tableId,
       totalPrice: totalPrice,
       date: formattedDate,
-      paymentStatus: false,
       items: products.map((product) => ({
         menu_id: product.id,
         quantity: product.quantity,
