@@ -67,7 +67,7 @@ const Home = () => {
   const router = useRouter();
   const tableId = router.query.tableId as string;
   const handleViewCart = () => {
-    router.push(`/cus_service/cart?items?tableId=${router.query.tableId}`);
+    router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
   };
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
