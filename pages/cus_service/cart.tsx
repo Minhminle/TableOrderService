@@ -80,22 +80,33 @@ const Cart = () => {
   };
 
   const handleExit = () => {
-    router.push("/cus_service/menu");
+    router.push("/cus_service/menu/");
   };
   const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNote(event.target.value); // Cập nhật giá trị ghi chú vào state
   };
 
-  const totalPrice = calculateTotalPrice().toLocaleString("vi-VN") + 'VND";';
+  const totalPrice = calculateTotalPrice();
   const currentDate = new Date();
   const day = currentDate.getDate();
   const month = currentDate.getMonth();
   const year = currentDate.getFullYear();
-  const formattedDate = `${day}/${month}/${year}`;
+  const hours = currentDate.getHours();
+  const minutes = currentDate.getMinutes();
+  const seconds = currentDate.getSeconds();
+
+  const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   const sendOrder = () => {
     const orderRef = collection(firestore, "OrderDetails");
-    const tableId = products.length > 0 ? products[0].tableId : "";
+    let tableId = "";
+    if (products.length > 0) {
+      const firstProduct = products.find(
+        (product) => product.tableId !== undefined && product.tableId !== null
+      );
+      tableId = firstProduct ? firstProduct.tableId : "";
+    }
     const order = {
+      paymentStatus: false,
       tableId: tableId,
       totalPrice: totalPrice,
       date: formattedDate,
@@ -113,7 +124,10 @@ const Cart = () => {
       localStorage.removeItem("cartItems");
     });
   };
-
+  const BackMenu = () => {
+    const tableId = router.query.tableId;
+    router.push(`/cus_service/menu?tableId=${tableId}`);
+  };
   return (
     <>
       <Box
@@ -258,7 +272,7 @@ const Cart = () => {
             variant="contained"
             onClick={() => {
               setShowSuccessMessage(false);
-              router.push("/cus_service/menu");
+              BackMenu();
             }}
             style={{ marginTop: "20px" }}
           >

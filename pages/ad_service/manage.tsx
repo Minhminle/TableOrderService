@@ -44,6 +44,7 @@ import {
 import { getStorage } from "firebase/storage";
 import { confirmAlert } from "react-confirm-alert"; // Import thư viện react-confirm-alert
 import "react-confirm-alert/src/react-confirm-alert.css";
+import { query, where, getDocs } from "firebase/firestore";
 
 const ManageTable = () => {
   const tables = useFetchTables();
@@ -66,6 +67,46 @@ const ManageTable = () => {
   const [newMenuType, setNewMenuType] = useState("");
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
+  const handlePaymentConfirmation = () => {
+    confirmAlert({
+      title: "Xác Nhận Thanh Toán",
+      message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
+      buttons: [
+        {
+          label: "Đồng Ý",
+          onClick: async () => {
+            try {
+              // Cập nhật trạng thái paymentStatus của OrderDetails thành true
+              // Cập nhật trạng thái trực tiếp trên Firebase
+
+              const app = initializeApp(firebaseConfig);
+              const db = getFirestore(app);
+
+              // Tìm OrderDetails tương ứng với bàn số và cập nhật paymentStatus
+              const orderDetailsRef = collection(db, "OrderDetails");
+              const querySnapshot = await getDocs(
+                query(orderDetailsRef, where("tableId", "==", selectedTableId))
+              );
+              querySnapshot.forEach((doc) => {
+                updateDoc(doc.ref, { paymentStatus: true });
+              });
+
+              // Load lại trang web để cập nhật dữ liệu mới
+              window.location.reload();
+            } catch (error) {
+              console.error("Error updating payment status: ", error);
+            }
+          },
+        },
+        {
+          label: "Hủy",
+          onClick: () => {
+            // Hủy bỏ xác nhận thanh toán
+          },
+        },
+      ],
+    });
+  };
 
   const typeMapping = {
     All: "Tất cả",
@@ -351,6 +392,13 @@ const ManageTable = () => {
                   {/* Render order details based on selectedTableId */}
                   {orderDetails.map((orderDetail, orderIndex) => (
                     <div key={orderIndex}>
+                      {/* Hiển thị ID của OrderDetails */}
+                      <Typography variant="subtitle1">
+                        ID:{" "}
+                        {Array.isArray(orderDetail.id)
+                          ? orderDetail.id.join(" - ")
+                          : orderDetail.id}
+                      </Typography>
                       {/* Lặp qua từng mục trong orderDetail.items */}
                       {orderDetail.items.map((item, index) => (
                         <div key={index}>
@@ -382,6 +430,15 @@ const ManageTable = () => {
                           </Grid>
                         </div>
                       ))}
+                      {/* Thêm dấu gạch ngang sau mỗi OrderDetails */}
+                      {orderIndex < orderDetails.length - 1 && (
+                        <hr
+                          style={{
+                            borderTop: "1px dashed black",
+                            margin: "10px 0",
+                          }}
+                        />
+                      )}
                     </div>
                   ))}
                 </Grid>
@@ -398,7 +455,20 @@ const ManageTable = () => {
                 }}
               >
                 <Stack direction="row" spacing={3}>
-                  <Typography>Tổng tiền:</Typography>
+                  <Typography>
+                    Tổng tiền:{" "}
+                    {orderDetails.map(
+                      (orderDetail, orderIndex) => orderDetail.totalPrice
+                    )}
+                  </Typography>
+                  <Typography>
+                    Trạng thái thanh toán:{" "}
+                    {orderDetails.map((orderDetail, orderIndex) => (
+                      <span key={orderIndex}>
+                        {orderDetail.paymentStatus ? "True" : "False"}
+                      </span>
+                    ))}
+                  </Typography>
                 </Stack>
                 <Stack direction="row" spacing={2}>
                   <Button
@@ -420,19 +490,9 @@ const ManageTable = () => {
                       color: "white",
                       backgroundColor: "green",
                     }}
+                    onClick={handlePaymentConfirmation}
                   >
                     Thanh Toán
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{
-                      height: "50px",
-                      width: "150px",
-                      background: "#ffffff",
-                      color: "gray",
-                    }}
-                  >
-                    Thông Báo
                   </Button>
                 </Stack>
               </Box>

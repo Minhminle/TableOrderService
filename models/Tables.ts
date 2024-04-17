@@ -77,9 +77,9 @@ async function fetchOrderDetailsForTable(
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const orderDetails = new OrderDetails(
+      data.id,
       data.items,
       data.orderDate,
-      data.orderTime,
       data.paymentStatus,
       data.totalPrice
     );
