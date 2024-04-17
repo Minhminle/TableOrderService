@@ -80,7 +80,7 @@ const Cart = () => {
   };
 
   const handleExit = () => {
-    router.push("/cus_service/menu");
+    router.push("/cus_service/menu/");
   };
   const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNote(event.target.value); // Cập nhật giá trị ghi chú vào state
@@ -102,6 +102,7 @@ const Cart = () => {
       tableId = firstProduct ? firstProduct.tableId : "";
     }
     const order = {
+      paymentStatus: false,
       tableId: tableId,
       totalPrice: totalPrice,
       date: formattedDate,
@@ -120,7 +121,10 @@ const Cart = () => {
       localStorage.removeItem("cartItems");
     });
   };
-
+  const BackMenu = () => {
+    const tableId = router.query.tableId;
+    router.push(`/cus_service/menu?tableId=${tableId}`);
+  };
   return (
     <>
       <Box
@@ -265,7 +269,7 @@ const Cart = () => {
             variant="contained"
             onClick={() => {
               setShowSuccessMessage(false);
-              router.push("/cus_service/menu");
+              BackMenu();
             }}
             style={{ marginTop: "20px" }}
           >
