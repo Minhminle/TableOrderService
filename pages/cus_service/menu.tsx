@@ -62,6 +62,7 @@ const Home = () => {
       path: string;
       type: string;
       tableId: string;
+      show: boolean;
     }[]
   >([]);
 
@@ -157,6 +158,11 @@ const Home = () => {
     const menuItem = menus.find((menu) => menu.id === menuId);
 
     if (menuItem) {
+      if (!menuItem.show) {
+        alert(`${menuItem.name} đã dừng phục vụ.`);
+        return;
+      }
+
       const existingItemIndex = cartItems.findIndex(
         (item) => item.id === menuId
       );
@@ -169,6 +175,7 @@ const Home = () => {
           path: menuItem.path,
           type: menuItem.type,
           tableId: tableId,
+          show: menuItem.show,
           quantity: 1,
         };
         const newCartItems = [...cartItems, newCartItem];
@@ -201,12 +208,11 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const totalItems = cartItems.reduce(
-      (total, item) => total + item.quantity,
-      0
-    );
+    const totalItems = cartItems
+      .filter((item) => menus.find((menu) => menu.id === item.id)?.show)
+      .reduce((total, item) => total + item.quantity, 0);
     setCartTotal(totalItems);
-  }, [cartItems]);
+  }, [cartItems, menus]);
 
   return (
     <>

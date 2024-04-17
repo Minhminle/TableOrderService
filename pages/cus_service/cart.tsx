@@ -11,7 +11,13 @@ import {
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 import { initializeApp } from "firebase/app";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getFirestore,
+  getDoc,
+} from "firebase/firestore";
 const Cart = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const firebaseConfig = {
@@ -37,6 +43,7 @@ const Cart = () => {
       path: string;
       type: string;
       tableId: string;
+      show: boolean;
     }>
   >([]);
   useEffect(() => {
@@ -92,27 +99,68 @@ const Cart = () => {
   const month = currentDate.getMonth();
   const year = currentDate.getFullYear();
   const formattedDate = `${day}/${month}/${year}`;
-  const sendOrder = () => {
+
+  const sendOrder = async () => {
+    // Cập nhật trạng thái show mới nhất từ cơ sở dữ liệu
+    const updatedProducts = await Promise.all(
+      products.map(async (product) => {
+        const docRef = doc(firestore, "Menus", product.id);
+        const docSnap = await getDoc(docRef);
+        const updatedShow = docSnap.data()?.show || false;
+        return { ...product, show: updatedShow };
+      })
+    );
+
+    // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
+    const validProducts = updatedProducts.filter((product) => product.show);
+
+    // Cập nhật trạng thái show trong localStorage
+    localStorage.setItem("cartItems", JSON.stringify(validProducts));
+
+    // Cập nhật products state với validProducts
+    setProducts(validProducts);
+
+    console.log(validProducts); // Đã được cập nhật từ cơ sở dữ liệu
+
+    const invalidProducts = updatedProducts.filter((product) => !product.show);
+
+    if (invalidProducts.length > 0) {
+      const invalidProductNames = invalidProducts
+        .map((product) => product.name)
+        .join(", ");
+      alert(
+        `${invalidProductNames} đã dừng phục vụ. Vui lòng chỉnh sửa đơn hàng.`
+      );
+      return;
+    }
+
+    if (validProducts.length === 0) {
+      alert("Không có sản phẩm hợp lệ để gửi đơn hàng.");
+      return;
+    }
+
     const orderRef = collection(firestore, "OrderDetails");
     let tableId = "";
-    if (products.length > 0) {
-      const firstProduct = products.find(
+    if (validProducts.length > 0) {
+      const firstProduct = validProducts.find(
         (product) => product.tableId !== undefined && product.tableId !== null
       );
       tableId = firstProduct ? firstProduct.tableId : "";
     }
+
     const order = {
       paymentStatus: false,
       tableId: tableId,
       totalPrice: totalPrice,
       date: formattedDate,
-      items: products.map((product) => ({
+      items: validProducts.map((product) => ({
         menu_id: product.id,
         quantity: product.quantity,
         note: product.note ? product.note : note,
         orderdetails_price: product.quantity * product.price,
       })),
     };
+
     setShowSuccessMessage(true);
     addDoc(orderRef, order).then(() => {
       setProducts([]);
