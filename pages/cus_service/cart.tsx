@@ -111,7 +111,6 @@ const Cart = () => {
         quantity: product.quantity,
         note: product.note ? product.note : note,
         orderdetails_price: product.quantity * product.price,
-        static_item: true,
       })),
     };
     setShowSuccessMessage(true);
