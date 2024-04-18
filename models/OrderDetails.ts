@@ -104,3 +104,51 @@ export function useFetchOrderDetails(tableId: string) {
 
   return orderDetails;
 }
+
+export function useFetchOrderHandle() {
+  const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
+
+  useEffect(() => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const fetchData = async () => {
+      try {
+        const orderDetailsCollection = collection(db, "OrderDetails");
+        const q = query(
+          orderDetailsCollection,
+          where("paymentStatus", "==", false)
+        );
+        const querySnapshot = await getDocs(q);
+        const orderDetailsList = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          // Lấy ID của OrderDetails từ doc.id
+          const id = doc.id;
+          // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
+          const items = data.items.map(
+            (item: any) =>
+              new OrderItem(
+                item.menu_id,
+                item.orderdetails_price,
+                item.quantity
+              )
+          );
+          return new OrderDetails(
+            id,
+            items,
+            data.orderDate,
+            data.paymentStatus,
+            data.totalPrice
+          );
+        });
+        setOrderDetails(orderDetailsList);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return orderDetails;
+}

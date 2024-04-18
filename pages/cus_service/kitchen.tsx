@@ -64,6 +64,7 @@ const ManageTable = () => {
   const [newMenuPrice, setNewMenuPrice] = useState("");
   const [newMenuImage, setNewMenuImage] = useState<File | null>(null); // State để lưu trữ hình ảnh
   const [newMenuType, setNewMenuType] = useState("");
+  const [newMenuShow, setMenuShow] = useState(true);
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
 
@@ -150,7 +151,8 @@ const ManageTable = () => {
         newMenuName,
         parseFloat(newMenuPrice),
         imageURL,
-        newMenuType
+        newMenuType,
+        newMenuShow
       );
 
       // Thêm menu mới vào Firestore
