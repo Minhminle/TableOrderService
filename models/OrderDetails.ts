@@ -36,20 +36,20 @@ export class OrderItem {
 export class OrderDetails {
   id: string;
   items: OrderItem[];
-  orderDate: Date;
+  date: Date;
   paymentStatus: boolean;
   totalPrice: number;
 
   constructor(
     id: string,
     items: OrderItem[],
-    orderDate: Date,
+    date: Date,
     paymentStatus: boolean,
     totalPrice: number
   ) {
     this.id = id;
     this.items = items;
-    this.orderDate = orderDate;
+    this.date = date;
     this.paymentStatus = paymentStatus;
     this.totalPrice = totalPrice;
   }

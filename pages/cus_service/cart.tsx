@@ -123,6 +123,7 @@ const Cart = () => {
       setProducts([]);
       localStorage.removeItem("cartItems");
     });
+    localStorage.setItem("formattedDate", formattedDate);
   };
   const BackMenu = () => {
     const tableId = router.query.tableId;

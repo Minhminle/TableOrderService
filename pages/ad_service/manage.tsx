@@ -325,6 +325,8 @@ const ManageTable = () => {
     }
   };
 
+  const formattedDate = localStorage.getItem("formattedDate");
+
   return (
     <>
       <TabContext value={value.toString()}>
@@ -398,6 +400,9 @@ const ManageTable = () => {
                         {Array.isArray(orderDetail.id)
                           ? orderDetail.id.join(" - ")
                           : orderDetail.id}
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Date: {formattedDate}
                       </Typography>
                       {/* Lặp qua từng mục trong orderDetail.items */}
                       {orderDetail.items.map((item, index) => (
