@@ -100,12 +100,12 @@ export function useFetchOrderDetails(tableId: string) {
     };
 
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    }, 3000);
-    return () => {
-      clearInterval(interval); // Xóa interval khi component bị unmount
-    };
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, [tableId]);
 
   return orderDetails;
@@ -154,12 +154,12 @@ export function useFetchOrderHandle() {
     };
 
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    }, 3000);
-    return () => {
-      clearInterval(interval); // Xóa interval khi component bị unmount
-    };
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, []);
 
   return orderDetails;
