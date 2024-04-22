@@ -48,6 +48,7 @@ import { query, where, getDocs } from "firebase/firestore";
 
 const ManageTable = () => {
   const tables = useFetchTables();
+  
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
 
@@ -67,6 +68,10 @@ const ManageTable = () => {
   const [newMenuType, setNewMenuType] = useState("");
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
+  
+  
+
+  
   const handlePaymentConfirmation = () => {
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
@@ -107,15 +112,7 @@ const ManageTable = () => {
       ],
     });
   };
-  const reloadComponent = () => {
-    window.location.reload(); // Reload the entire page
-  };
 
-  // Set up an interval to reload the component every 3 seconds
-  useEffect(() => {
-    const intervalId = setInterval(reloadComponent, 20000); // 3000 milliseconds = 3 seconds
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, []);
   const typeMapping = {
     All: "Tất cả",
     Pickle: "Đồ chua - Bánh mì",
