@@ -34,22 +34,22 @@ export class OrderItem {
 
 // Cập nhật lớp OrderDetails để chứa mảng các mục được chọn
 export class OrderDetails {
+  id: string;
   items: OrderItem[];
-  orderDate: Date;
-  orderTime: string;
+  date: Date;
   paymentStatus: boolean;
   totalPrice: number;
 
   constructor(
+    id: string,
     items: OrderItem[],
-    orderDate: Date,
-    orderTime: string,
+    date: Date,
     paymentStatus: boolean,
     totalPrice: number
   ) {
+    this.id = id;
     this.items = items;
-    this.orderDate = orderDate;
-    this.orderTime = orderTime;
+    this.date = date;
     this.paymentStatus = paymentStatus;
     this.totalPrice = totalPrice;
   }
@@ -73,6 +73,8 @@ export function useFetchOrderDetails(tableId: string) {
         const orderDetailsList = querySnapshot.docs
           .map((doc) => {
             const data = doc.data();
+            // Lấy ID của OrderDetails từ doc.id
+            const id = doc.id;
             // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
             const items = data.items.map(
               (item: any) =>
@@ -83,9 +85,9 @@ export function useFetchOrderDetails(tableId: string) {
                 )
             );
             return new OrderDetails(
+              id,
               items,
               data.orderDate,
-              data.orderTime,
               data.paymentStatus,
               data.totalPrice
             );

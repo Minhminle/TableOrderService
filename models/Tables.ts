@@ -60,6 +60,12 @@ export function useFetchTables() {
     };
 
     fetchData();
+    const interval = setInterval(() => {
+      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    }, 5000);
+    return () => {
+      clearInterval(interval); // Xóa interval khi component bị unmount
+    };
   }, []);
 
   return tables;
@@ -77,9 +83,9 @@ async function fetchOrderDetailsForTable(
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const orderDetails = new OrderDetails(
+      data.id,
       data.items,
       data.orderDate,
-      data.orderTime,
       data.paymentStatus,
       data.totalPrice
     );

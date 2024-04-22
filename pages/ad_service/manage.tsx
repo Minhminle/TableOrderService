@@ -5,7 +5,9 @@ import { initializeApp } from "firebase/app";
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   Grid,
   InputLabel,
   ListItem,
@@ -49,9 +51,14 @@ import { confirmAlert } from "react-confirm-alert"; // Import thư viện react-
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { query, where, getDocs } from "firebase/firestore";
 import { Console } from "console";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { green } from "@mui/material/colors";
+
 
 const ManageTable = () => {
   const tables = useFetchTables();
+  
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
 
@@ -69,9 +76,12 @@ const ManageTable = () => {
   const [newMenuPrice, setNewMenuPrice] = useState("");
   const [newMenuImage, setNewMenuImage] = useState<File | null>(null); // State để lưu trữ hình ảnh
   const [newMenuType, setNewMenuType] = useState("");
+  const [newMenuShow, setNewMenuShow] = useState(true);
+
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
-  const handlePaymentConfirmation = async () => {
+  const handlePaymentConfirmation = () => {
+
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
       message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
@@ -135,6 +145,38 @@ const ManageTable = () => {
     return menus.find((menu) => menu.id === menuId);
   };
 
+  const handleToggleShowMenu = async (menuId: string, menuName: string) => {
+    try {
+      const confirmed = window.confirm(
+        `Bạn có muốn ${
+          menus.find((m) => m.id === menuId)?.show ? "ẩn" : "hiển thị"
+        } ${menuName} trong menu không?`
+      );
+
+      if (confirmed) {
+        // Đảo ngược trạng thái show của menu
+        const updatedShowStatus = !menus.find((m) => m.id === menuId)?.show;
+
+        // Cập nhật trạng thái show của menu trong cơ sở dữ liệu
+        await updateDoc(doc(firestore, "Menus", menuId), {
+          show: updatedShowStatus,
+        });
+
+        // Cập nhật trạng thái show của menu trong state
+        setMenus((prevMenus) =>
+          prevMenus.map((m) =>
+            m.id === menuId ? { ...m, show: updatedShowStatus } : m
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error toggling menu show status: ", error);
+      alert(
+        "Cập nhật trạng thái hiển thị món không thành công. Vui lòng thử lại sau."
+      );
+    }
+  };
+
   // Sử dụng hook useFetchMenus trực tiếp trong component
   const menusFromAPI = useFetchMenus();
 
@@ -162,6 +204,11 @@ const ManageTable = () => {
   const handleAddNew = () => {
     setAddingNew(true); // Hiển thị phần thêm mới
     setSelectedMenu(null); // Đặt selectedMenu về null để các trường còn lại trống
+    setNewMenuShow(true);
+    setNewMenuName("");
+    setNewMenuPrice("");
+    setNewMenuImage(null);
+    setNewMenuType("");
   };
 
   const handleAddMenu = async () => {
@@ -169,9 +216,15 @@ const ManageTable = () => {
       // Lấy tham chiếu đến dịch vụ lưu trữ Firebase
       const storage = getStorage(app);
 
-      // Kiểm tra xem newMenuImage có giá trị không
-      if (!newMenuImage) {
-        throw new Error("No image selected");
+      // Kiểm tra các trường nhập liệu có được điền đầy đủ hay không
+      if (
+        !newMenuName ||
+        !newMenuPrice ||
+        !newMenuImage ||
+        !newMenuType ||
+        newMenuShow === undefined
+      ) {
+        throw new Error("Điền vào tất cả các mục");
       }
 
       // Lấy tên file hình ảnh từ state
@@ -188,7 +241,8 @@ const ManageTable = () => {
         newMenuName,
         parseFloat(newMenuPrice),
         imageURL,
-        newMenuType
+        newMenuType,
+        newMenuShow
       );
 
       // Thêm menu mới vào Firestore
@@ -197,6 +251,7 @@ const ManageTable = () => {
         price: newMenu.price,
         path: newMenu.path,
         type: newMenu.type,
+        show: newMenu.show,
       });
 
       // Cập nhật danh sách menu sau khi thêm thành công
@@ -212,7 +267,7 @@ const ManageTable = () => {
     } catch (error) {
       console.error("Error adding menu: ", error);
       // Hiển thị alert thất bại
-      alert("Upload to Firebase failed. Please try again later.");
+      alert(error);
     }
   };
 
@@ -392,6 +447,13 @@ const ManageTable = () => {
                   {/* Render order details based on selectedTableId */}
                   {orderDetails.map((orderDetail, orderIndex) => (
                     <div key={orderIndex}>
+                      {/* Hiển thị ID của OrderDetails */}
+                      <Typography variant="subtitle1">
+                        ID:{" "}
+                        {Array.isArray(orderDetail.id)
+                          ? orderDetail.id.join(" - ")
+                          : orderDetail.id}
+                      </Typography>
                       {/* Lặp qua từng mục trong orderDetail.items */}
                       {orderDetail.items.map((item, index) => (
                         <div key={index}>
@@ -423,6 +485,15 @@ const ManageTable = () => {
                           </Grid>
                         </div>
                       ))}
+                      {/* Thêm dấu gạch ngang sau mỗi OrderDetails */}
+                      {orderIndex < orderDetails.length - 1 && (
+                        <hr
+                          style={{
+                            borderTop: "1px dashed black",
+                            margin: "10px 0",
+                          }}
+                        />
+                      )}
                     </div>
                   ))}
                 </Grid>
@@ -528,6 +599,21 @@ const ManageTable = () => {
                                   direction="row"
                                   justifyContent="space-between"
                                 >
+                                  {menu.show ? (
+                                    <VisibilityIcon
+                                      sx={{ color: "green", cursor: "pointer" }}
+                                      onClick={() =>
+                                        handleToggleShowMenu(menu.id, menu.name)
+                                      }
+                                    />
+                                  ) : (
+                                    <VisibilityOffIcon
+                                      sx={{ color: "gray", cursor: "pointer" }}
+                                      onClick={() =>
+                                        handleToggleShowMenu(menu.id, menu.name)
+                                      }
+                                    />
+                                  )}
                                   <Button
                                     variant="contained"
                                     color="error"
@@ -559,20 +645,23 @@ const ManageTable = () => {
                 {addingNew && !selectedMenu && (
                   <Box sx={{ p: "16px 10px 16px 10px" }}>
                     <Stack spacing={3}>
-                      <Box
-                        component="img"
-                        alt="Default"
-                        src="https://thaibinhtv.vn/assets/images/imgstd.jpg"
-                        sx={{
-                          width: "200px",
-                          height: "200px",
-                          pb: "10px",
-                          borderRadius: "16px",
-                          margin: "0 auto",
-                        }}
-                      />
                       {/* Phần tải ảnh lên */}
                       <input type="file" onChange={handleImageChange} />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={newMenuShow}
+                            onChange={(e) => setNewMenuShow(e.target.checked)}
+                            color="primary"
+                            icon={<VisibilityOffIcon />}
+                            checkedIcon={
+                              <VisibilityIcon sx={{ color: "green" }} />
+                            }
+                          />
+                        }
+                        label="Hiển thị"
+                        sx={{ marginBottom: 2 }}
+                      />
                     </Stack>
                     <TextField
                       id="menu-name"
@@ -740,3 +829,5 @@ export default ManageTable;
 function commitBatch(batch: WriteBatch) {
   throw new Error("Function not implemented.");
 }
+
+

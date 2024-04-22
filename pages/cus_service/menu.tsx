@@ -28,18 +28,21 @@ class Menu {
   price: number;
   path: string;
   type: string;
+  show: boolean;
   constructor(
     id: string,
     name: string,
     price: number,
     path: string,
-    type: string
+    type: string,
+    show: boolean
   ) {
     this.id = id;
     this.name = name;
     this.price = price;
     this.path = path;
     this.type = type;
+    this.show = show;
   }
 }
 
@@ -59,6 +62,7 @@ const Home = () => {
       path: string;
       type: string;
       tableId: string;
+      show: boolean;
     }[]
   >([]);
 
@@ -66,6 +70,11 @@ const Home = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
   const tableId = router.query.tableId as string;
+
+
+
+
+
   const handleViewCart = () => {
     router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
   };
@@ -114,7 +123,14 @@ const Home = () => {
         const menuSnapshot = await getDocs(menuCollection);
         const menuList = menuSnapshot.docs.map((doc) => {
           const data = doc.data();
-          return new Menu(doc.id, data.name, data.price, data.path, data.type);
+          return new Menu(
+            doc.id,
+            data.name,
+            data.price,
+            data.path,
+            data.type,
+            data.show
+          );
         });
         setMenus(menuList);
       } catch (error) {
@@ -122,8 +138,14 @@ const Home = () => {
       }
     };
     fetchData();
-    return () => {};
-  }, []);
+    const interval = setInterval(() => {
+      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    }, 20000);
+
+    return () => {
+      clearInterval(interval); // Xóa interval khi component bị unmount
+    };
+  }, []); // Dùng mảng dependency rỗng để chỉ gọi useEffect một lần sau khi component được render
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
     if (storedCartItems) {
@@ -147,6 +169,11 @@ const Home = () => {
     const menuItem = menus.find((menu) => menu.id === menuId);
 
     if (menuItem) {
+      if (!menuItem.show) {
+        alert(`${menuItem.name} đã dừng phục vụ.`);
+        return;
+      }
+
       const existingItemIndex = cartItems.findIndex(
         (item) => item.id === menuId
       );
@@ -159,6 +186,7 @@ const Home = () => {
           path: menuItem.path,
           type: menuItem.type,
           tableId: tableId,
+          show: menuItem.show,
           quantity: 1,
         };
         const newCartItems = [...cartItems, newCartItem];
@@ -191,12 +219,11 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const totalItems = cartItems.reduce(
-      (total, item) => total + item.quantity,
-      0
-    );
+    const totalItems = cartItems
+      .filter((item) => menus.find((menu) => menu.id === item.id)?.show)
+      .reduce((total, item) => total + item.quantity, 0);
     setCartTotal(totalItems);
-  }, [cartItems]);
+  }, [cartItems, menus]);
 
   return (
     <>
@@ -359,7 +386,7 @@ const Home = () => {
           <Box sx={{ p: "16px 10px 16px 10px" }}>
             <Grid container spacing={2}>
               {menus
-                .filter((menu) => menu.price !== 0)
+                .filter((menu) => menu.price !== 0 && menu.show === true)
                 .sort((a, b) => b.price - a.price)
                 .map((menu, index) => (
                   <Grid
