@@ -53,6 +53,7 @@ import { green } from "@mui/material/colors";
 
 const ManageTable = () => {
   const tables = useFetchTables();
+  
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
 
@@ -74,6 +75,10 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
+  
+  
+
+  
   const handlePaymentConfirmation = () => {
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
