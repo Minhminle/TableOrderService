@@ -36,6 +36,9 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  writeBatch,
+  WriteBatch,
+  setDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -47,9 +50,11 @@ import { getStorage } from "firebase/storage";
 import { confirmAlert } from "react-confirm-alert"; // Import thư viện react-confirm-alert
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { query, where, getDocs } from "firebase/firestore";
+import { Console } from "console";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { green } from "@mui/material/colors";
+
 
 const ManageTable = () => {
   const tables = useFetchTables();
@@ -75,11 +80,8 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
-  
-  
-
-  
   const handlePaymentConfirmation = () => {
+
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
       message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
@@ -88,22 +90,15 @@ const ManageTable = () => {
           label: "Đồng Ý",
           onClick: async () => {
             try {
-              // Cập nhật trạng thái paymentStatus của OrderDetails thành true
-              // Cập nhật trạng thái trực tiếp trên Firebase
-
-              const app = initializeApp(firebaseConfig);
-              const db = getFirestore(app);
-
-              // Tìm OrderDetails tương ứng với bàn số và cập nhật paymentStatus
-              const orderDetailsRef = collection(db, "OrderDetails");
+              const orderDetailsRef = collection(firestore, "OrderDetails");
               const querySnapshot = await getDocs(
                 query(orderDetailsRef, where("tableId", "==", selectedTableId))
               );
-              querySnapshot.forEach((doc) => {
-                updateDoc(doc.ref, { paymentStatus: true });
+              querySnapshot.forEach(async (doc) => {
+                const billRef = collection(firestore, "Bills");
+                await addDoc(billRef, doc.data());
+                await deleteDoc(doc.ref);
               });
-
-              // Load lại trang web để cập nhật dữ liệu mới
               window.location.reload();
             } catch (error) {
               console.error("Error updating payment status: ", error);
@@ -381,7 +376,10 @@ const ManageTable = () => {
       alert("Save menu failed. Please try again later.");
     }
   };
-
+  // Tính tổng tiền các đơn hàng
+  const totalPayment = orderDetails.reduce((total, orderDetail) => {
+    return total + orderDetail.totalPrice;
+  }, 0);
   return (
     <>
       <TabContext value={value.toString()}>
@@ -512,20 +510,7 @@ const ManageTable = () => {
                 }}
               >
                 <Stack direction="row" spacing={3}>
-                  <Typography>
-                    Tổng tiền:{" "}
-                    {orderDetails.map(
-                      (orderDetail, orderIndex) => orderDetail.totalPrice
-                    )}
-                  </Typography>
-                  <Typography>
-                    Trạng thái thanh toán:{" "}
-                    {orderDetails.map((orderDetail, orderIndex) => (
-                      <span key={orderIndex}>
-                        {orderDetail.paymentStatus ? "True" : "False"}
-                      </span>
-                    ))}
-                  </Typography>
+                  <Typography>Tổng tiền:{`${totalPayment}`}</Typography>
                 </Stack>
                 <Stack direction="row" spacing={2}>
                   <Button
@@ -841,3 +826,8 @@ const ManageTable = () => {
 };
 
 export default ManageTable;
+function commitBatch(batch: WriteBatch) {
+  throw new Error("Function not implemented.");
+}
+
+
