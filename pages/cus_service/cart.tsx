@@ -102,276 +102,272 @@ const Cart = () => {
   const minutes = currentDate.getMinutes();
   const seconds = currentDate.getSeconds();
   const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-  const sendOrder = () => {
-    const sendOrder = async () => {
-      // Cập nhật trạng thái show mới nhất từ cơ sở dữ liệu
-      const updatedProducts = await Promise.all(
-        products.map(async (product) => {
-          const docRef = doc(firestore, "Menus", product.id);
-          const docSnap = await getDoc(docRef);
-          const updatedShow = docSnap.data()?.show || false;
-          return { ...product, show: updatedShow };
-        })
+  const sendOrder = async () => {
+    // Cập nhật trạng thái show mới nhất từ cơ sở dữ liệu
+    const updatedProducts = await Promise.all(
+      products.map(async (product) => {
+        const docRef = doc(firestore, "Menus", product.id);
+        const docSnap = await getDoc(docRef);
+        const updatedShow = docSnap.data()?.show || false;
+        return { ...product, show: updatedShow };
+      })
+    );
+
+    // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
+    const validProducts = updatedProducts.filter((product) => product.show);
+
+    // Cập nhật trạng thái show trong localStorage
+    localStorage.setItem("cartItems", JSON.stringify(validProducts));
+
+    // Cập nhật products state với validProducts
+    setProducts(validProducts);
+
+    console.log(validProducts); // Đã được cập nhật từ cơ sở dữ liệu
+
+    const invalidProducts = updatedProducts.filter((product) => !product.show);
+
+    if (invalidProducts.length > 0) {
+      const invalidProductNames = invalidProducts
+        .map((product) => product.name)
+        .join(", ");
+      alert(
+        `${invalidProductNames} đã dừng phục vụ. Vui lòng chỉnh sửa đơn hàng.`
       );
+      return;
+    }
 
-      // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
-      const validProducts = updatedProducts.filter((product) => product.show);
-
-      // Cập nhật trạng thái show trong localStorage
-      localStorage.setItem("cartItems", JSON.stringify(validProducts));
-
-      // Cập nhật products state với validProducts
-      setProducts(validProducts);
-
-      console.log(validProducts); // Đã được cập nhật từ cơ sở dữ liệu
-
-      const invalidProducts = updatedProducts.filter(
-        (product) => !product.show
+    if (validProducts.length === 0) {
+      alert("Không có sản phẩm hợp lệ để gửi đơn hàng.");
+      return;
+    }
+    const orderRef = collection(firestore, "OrderDetails");
+    let tableId = "";
+    if (validProducts.length > 0) {
+      const firstProduct = validProducts.find(
+        (product) => product.tableId !== undefined && product.tableId !== null
       );
+      tableId = firstProduct ? firstProduct.tableId : "";
+    }
 
-      if (invalidProducts.length > 0) {
-        const invalidProductNames = invalidProducts
-          .map((product) => product.name)
-          .join(", ");
-        alert(
-          `${invalidProductNames} đã dừng phục vụ. Vui lòng chỉnh sửa đơn hàng.`
-        );
-        return;
-      }
-
-      if (validProducts.length === 0) {
-        alert("Không có sản phẩm hợp lệ để gửi đơn hàng.");
-        return;
-      }
-      const orderRef = collection(firestore, "OrderDetails");
-      let tableId = "";
-      if (validProducts.length > 0) {
-        const firstProduct = validProducts.find(
-          (product) => product.tableId !== undefined && product.tableId !== null
-        );
-        tableId = firstProduct ? firstProduct.tableId : "";
-      }
-
-      const order = {
-        paymentStatus: false,
-        tableId: tableId,
-        totalPrice: totalPrice,
-        date: formattedDate,
-        items: validProducts.map((product) => ({
-          menu_id: product.id,
-          quantity: product.quantity,
-          note: product.note ? product.note : note,
-          orderdetails_price: product.quantity * product.price,
-        })),
-      };
-
-      setShowSuccessMessage(true);
-      addDoc(orderRef, order).then(() => {
-        setProducts([]);
-        localStorage.removeItem("cartItems");
-      });
+    const order = {
+      paymentStatus: false,
+      tableId: tableId,
+      totalPrice: totalPrice,
+      date: formattedDate,
+      items: validProducts.map((product) => ({
+        menu_id: product.id,
+        quantity: product.quantity,
+        note: product.note ? product.note : note,
+        orderdetails_price: product.quantity * product.price,
+      })),
     };
-    const BackMenu = () => {
-      const tableId = router.query.tableId;
-      router.push(`/cus_service/menu?tableId=${tableId}`);
-    };
-    return (
-      <>
-        <Box
+
+    setShowSuccessMessage(true);
+    addDoc(orderRef, order).then(() => {
+      setProducts([]);
+      localStorage.removeItem("cartItems");
+    });
+  };
+  const BackMenu = () => {
+    const tableId = router.query.tableId;
+    router.push(`/cus_service/menu?tableId=${tableId}`);
+  };
+  return (
+    <>
+      <Box
+        sx={{
+          background: "#C50023",
+          height: "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+        }}
+      >
+        <Typography
           sx={{
-            background: "#C50023",
-            height: "50px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+            color: "white",
+            fontWeight: 600,
           }}
+          variant="h5"
         >
-          <Typography
-            sx={{
-              color: "white",
-              fontWeight: 600,
-            }}
-            variant="h5"
-          >
-            THÔNG TIN ĐƠN HÀNG
-          </Typography>
-        </Box>
-        {/* Hiểnthị*/}
-        <Box sx={{ p: "20px 0px 0px 0px" }}>
-          <Stack display="flex" gap="20px">
-            {products.map((product, index) => (
-              <Stack
-                key={index}
-                direction={"row"}
-                justifyContent="space-between"
+          THÔNG TIN ĐƠN HÀNG
+        </Typography>
+      </Box>
+      {/* Hiểnthị*/}
+      <Box sx={{ p: "20px 0px 0px 0px" }}>
+        <Stack display="flex" gap="20px">
+          {products.map((product, index) => (
+            <Stack
+              key={index}
+              direction={"row"}
+              justifyContent="space-between"
+              sx={{
+                padding: "5px",
+                backgroundColor: "#fff9c4",
+                width: "99%",
+                borderRadius: "16px",
+              }}
+            >
+              <Box
+                component="img"
+                src={`${product.path}`}
                 sx={{
-                  padding: "5px",
-                  backgroundColor: "#fff9c4",
-                  width: "99%",
+                  width: "60px",
+                  height: "60px",
                   borderRadius: "16px",
                 }}
-              >
-                <Box
-                  component="img"
-                  src={`${product.path}`}
-                  sx={{
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "16px",
-                  }}
-                />
-                <Stack pl={"5px"}>
-                  <Typography style={{ fontSize: "13px", fontWeight: "bold" }}>
-                    {product.name}
-                  </Typography>
-                  <Stack direction={"row"}>
-                    <TextField
-                      id="standard-basic"
-                      label="Ghi chú"
-                      value={note} // Giá trị ghi chú từ state
-                      onChange={handleNoteChange} // Xử lý sự kiện khi thay đổi ghi chú
-                      onFocus={() => setIsKeyboardOpen(true)}
-                      onBlur={() => setIsKeyboardOpen(false)}
-                      variant="standard"
-                      style={{ fontSize: "10px", fontStyle: "italic" }}
-                      sx={{ width: "100%" }}
-                      InputProps={{
-                        style: {
-                          fontSize: "15px",
-                          background: "transparent",
-                        },
+              />
+              <Stack pl={"5px"}>
+                <Typography style={{ fontSize: "13px", fontWeight: "bold" }}>
+                  {product.name}
+                </Typography>
+                <Stack direction={"row"}>
+                  <TextField
+                    id="standard-basic"
+                    label="Ghi chú"
+                    value={note} // Giá trị ghi chú từ state
+                    onChange={handleNoteChange} // Xử lý sự kiện khi thay đổi ghi chú
+                    onFocus={() => setIsKeyboardOpen(true)}
+                    onBlur={() => setIsKeyboardOpen(false)}
+                    variant="standard"
+                    style={{ fontSize: "10px", fontStyle: "italic" }}
+                    sx={{ width: "100%" }}
+                    InputProps={{
+                      style: {
+                        fontSize: "15px",
+                        background: "transparent",
+                      },
+                    }}
+                  />
+                  <Stack sx={{ width: "100%" }}>
+                    <Typography
+                      style={{ fontSize: "15px" }}
+                      sx={{
+                        fontWeight: 700,
+                        color: "red",
+                        textAlign: "right",
                       }}
-                    />
-                    <Stack sx={{ width: "100%" }}>
-                      <Typography
-                        style={{ fontSize: "15px" }}
-                        sx={{
-                          fontWeight: 700,
-                          color: "red",
-                          textAlign: "right",
+                    >
+                      {(product.quantity * product.price).toLocaleString(
+                        "vi-VN"
+                      )}{" "}
+                      VND
+                    </Typography>
+                    <Stack
+                      sx={{ justifyContent: "flex-end" }}
+                      direction={"row"}
+                      spacing={0}
+                    >
+                      <IconButton
+                        sx={{ padding: "0" }}
+                        onClick={() => decreaseQuantity(index)}
+                      >
+                        <IndeterminateCheckBoxIcon />
+                      </IconButton>
+                      <TextField
+                        value={product.quantity}
+                        variant="standard"
+                        inputProps={{
+                          style: {
+                            textAlign: "center",
+                            maxWidth: "30px",
+                          },
                         }}
+                      />
+                      <IconButton
+                        sx={{ padding: "0" }}
+                        onClick={() => increaseQuantity(index)}
                       >
-                        {(product.quantity * product.price).toLocaleString(
-                          "vi-VN"
-                        )}{" "}
-                        VND
-                      </Typography>
-                      <Stack
-                        sx={{ justifyContent: "flex-end" }}
-                        direction={"row"}
-                        spacing={0}
-                      >
-                        <IconButton
-                          sx={{ padding: "0" }}
-                          onClick={() => decreaseQuantity(index)}
-                        >
-                          <IndeterminateCheckBoxIcon />
-                        </IconButton>
-                        <TextField
-                          value={product.quantity}
-                          variant="standard"
-                          inputProps={{
-                            style: {
-                              textAlign: "center",
-                              maxWidth: "30px",
-                            },
-                          }}
-                        />
-                        <IconButton
-                          sx={{ padding: "0" }}
-                          onClick={() => increaseQuantity(index)}
-                        >
-                          <LocalHospitalIcon />
-                        </IconButton>
-                      </Stack>
+                        <LocalHospitalIcon />
+                      </IconButton>
                     </Stack>
                   </Stack>
                 </Stack>
               </Stack>
-            ))}
-          </Stack>
-        </Box>
-        {/* Hiên thi thong bao */}
-        {showSuccessMessage && (
-          <Box
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              background: "rgba(0, 128, 0, 0.8)",
-              color: "white",
-              padding: "10px",
-              width: "200px",
-              height: "100px",
-              borderRadius: "8px",
-              zIndex: 9999,
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Typography>Chọn món thành công!</Typography>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setShowSuccessMessage(false);
-                BackMenu();
-              }}
-              style={{ marginTop: "20px" }}
-            >
-              Oke
-            </Button>
-          </Box>
-        )}
-
-        {/* Hiển thị tổng giá trị */}
-        <Typography
-          sx={{
-            textAlign: "right",
-            color: "#d50000",
-            fontWeight: "bold",
-            mt: "10px",
-            mr: "5px",
-          }}
-        >
-          Tổng cộng: {calculateTotalPrice().toLocaleString("vi-VN")} VND
-        </Typography>
-
-        {/* Button điều hướng và thoát */}
+            </Stack>
+          ))}
+        </Stack>
+      </Box>
+      {/* Hiên thi thong bao */}
+      {showSuccessMessage && (
         <Box
-          sx={{
+          style={{
             position: "fixed",
-            bottom: isMobile && isKeyboardOpen ? "100vh" : 0,
-            left: 0,
-            right: 0,
-            padding: 2,
-            background: "#fff",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0, 128, 0, 0.8)",
+            color: "white",
+            padding: "10px",
+            width: "200px",
+            height: "100px",
+            borderRadius: "8px",
+            zIndex: 9999,
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Stack spacing={1}>
-            <Button
-              variant="contained"
-              style={{ width: "100%", background: "#C50023", color: "#ffffff" }}
-              onClick={sendOrder}
-            >
-              Gửi đơn
-            </Button>
-            <Button
-              variant="contained"
-              style={{ width: "100%", background: "#ffffff", color: "gray" }}
-              onClick={handleExit}
-            >
-              Thoát
-            </Button>
-          </Stack>
+          <Typography>Chọn món thành công!</Typography>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setShowSuccessMessage(false);
+              BackMenu();
+            }}
+            style={{ marginTop: "20px" }}
+          >
+            Oke
+          </Button>
         </Box>
-      </>
-    );
-  };
+      )}
+
+      {/* Hiển thị tổng giá trị */}
+      <Typography
+        sx={{
+          textAlign: "right",
+          color: "#d50000",
+          fontWeight: "bold",
+          mt: "10px",
+          mr: "5px",
+        }}
+      >
+        Tổng cộng: {calculateTotalPrice().toLocaleString("vi-VN")} VND
+      </Typography>
+
+      {/* Button điều hướng và thoát */}
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: isMobile && isKeyboardOpen ? "100vh" : 0,
+          left: 0,
+          right: 0,
+          padding: 2,
+          background: "#fff",
+        }}
+      >
+        <Stack spacing={1}>
+          <Button
+            variant="contained"
+            style={{ width: "100%", background: "#C50023", color: "#ffffff" }}
+            onClick={sendOrder}
+          >
+            Gửi đơn
+          </Button>
+          <Button
+            variant="contained"
+            style={{ width: "100%", background: "#ffffff", color: "gray" }}
+            onClick={handleExit}
+          >
+            Thoát
+          </Button>
+        </Stack>
+      </Box>
+    </>
+  );
 };
 
 export default Cart;

@@ -55,10 +55,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { green } from "@mui/material/colors";
 
-
 const ManageTable = () => {
   const tables = useFetchTables();
-  
+
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
 
@@ -81,7 +80,6 @@ const ManageTable = () => {
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
   const handlePaymentConfirmation = () => {
-
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
       message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
@@ -522,7 +520,7 @@ const ManageTable = () => {
                       backgroundColor: "gray",
                     }}
                   >
-                    Tạm Tính
+                    Xác nhận
                   </Button>
                   <Button
                     variant="contained"
@@ -829,5 +827,3 @@ export default ManageTable;
 function commitBatch(batch: WriteBatch) {
   throw new Error("Function not implemented.");
 }
-
-
