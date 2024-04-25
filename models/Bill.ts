@@ -2,14 +2,7 @@ import { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { firebaseConfig } from "@/models/Config";
-import {
-  query,
-  where,
-  QuerySnapshot,
-  QueryDocumentSnapshot,
-} from "firebase/firestore";
 
-// Định nghĩa một lớp mới để phản ánh cấu trúc dữ liệu của mỗi mục trong items array
 export class BillItem {
   menu_id: string;
   bill_price: number;
@@ -32,7 +25,6 @@ export class BillItem {
   }
 }
 
-// Cập nhật lớp BillDetails để chứa mảng các mục được chọn
 export class BillDetails {
   id: string;
   items: BillItem[];
@@ -43,57 +35,69 @@ export class BillDetails {
   constructor(
     id: string,
     items: BillItem[],
-    date: Date,
+    date: any, // Sử dụng any cho date trước khi kiểm tra
     paymentStatus: boolean,
     totalPrice: number
   ) {
     this.id = id;
     this.items = items;
-    this.date = date;
+    this.date = date instanceof Date ? date : date.toDate(); // Kiểm tra và chuyển đổi sang Date nếu cần
     this.paymentStatus = paymentStatus;
     this.totalPrice = totalPrice;
   }
 }
 
-export function useFetchBillDetails(tableId: string) {
+export function useFetchBillDetails() {
   const [billDetails, setBillDetails] = useState<BillDetails[]>([]);
 
   useEffect(() => {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const fetchData = async () => {
+    const fetchBillDetails = async () => {
       try {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         const billsCollection = collection(db, "Bills");
-        const q = query(billsCollection, where("tableId", "==", tableId));
-        const querySnapshot = await getDocs(q);
-        const billDetailsList = querySnapshot.docs
-          .map((doc) => {
-            const data = doc.data();
-            // Lấy ID của BillDetails từ doc.id
-            const id = doc.id;
-            // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành BillItem
-            const items = data.items.map(
-              (item: any) =>
-                new BillItem(item.menu_id, item.bill_price, item.quantity)
-            );
-            return new BillDetails(
-              id,
-              items,
-              data.billDate,
-              data.paymentStatus,
-              data.totalPrice
-            );
-          })
-          .filter((billDetail) => !billDetail.paymentStatus); // Lọc các đơn hàng có paymentStatus là false
-        setBillDetails(billDetailsList);
+        const querySnapshot = await getDocs(billsCollection);
+
+        const fetchedBillDetails: BillDetails[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+
+          const items: BillItem[] = data.items.map(
+            (item: any) =>
+              new BillItem(
+                item.menu_id,
+                item.bill_price,
+                item.quantity,
+                item.note,
+                item.itemstatus
+              )
+          );
+
+          const billDetails = new BillDetails(
+            doc.id,
+            items,
+            data.date, // Truyền data.date trước khi kiểm tra và chuyển đổi
+            data.paymentStatus,
+            data.totalPrice
+          );
+
+          fetchedBillDetails.push(billDetails);
+        });
+
+        console.log("Fetched Bill Details:", fetchedBillDetails);
+        setBillDetails(fetchedBillDetails);
       } catch (error) {
-        console.error("Error fetching data: ", error);
+        console.error("Error fetching bill details: ", error);
       }
     };
 
-    fetchData();
-  }, [tableId]);
+    fetchBillDetails();
+
+    return () => {
+      // Cleanup function (nếu cần thiết)
+    };
+  }, []);
 
   return billDetails;
 }

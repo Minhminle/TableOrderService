@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
+import { Typography, Grid } from "@mui/material";
 import { BillDetails, useFetchBillDetails } from "@/models/Bill";
-import { Grid, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
 
 const Bills = () => {
-  const bills: BillDetails[] = useFetchBillDetails();
+  const billDetailsList: BillDetails[] = useFetchBillDetails();
+
+  console.log("Bill Details List:", billDetailsList); // Log dữ liệu billDetailsList để kiểm tra
 
   return (
     <>
@@ -11,7 +13,7 @@ const Bills = () => {
         All Bills
       </Typography>
       <Grid container spacing={3}>
-        {bills.map((bill) => (
+        {billDetailsList.map((bill) => (
           <Grid item key={bill.id} xs={12}>
             <div style={{ border: "1px solid #ccc", padding: "10px" }}>
               <Typography variant="h6">Bill ID: {bill.id}</Typography>
