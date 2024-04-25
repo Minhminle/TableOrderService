@@ -113,6 +113,8 @@ const Cart = () => {
       })
     );
 
+    //Hàm kiểm tra id món có tồn tại trong Menus hay không
+
     // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
     const validProducts = updatedProducts.filter((product) => product.show);
 
@@ -130,9 +132,7 @@ const Cart = () => {
       const invalidProductNames = invalidProducts
         .map((product) => product.name)
         .join(", ");
-      alert(
-        `${invalidProductNames} đã dừng phục vụ. Vui lòng chỉnh sửa đơn hàng.`
-      );
+      alert(`${invalidProductNames} tạm dừng phục vụ. Vui lòng chọn món khác.`);
       return;
     }
 

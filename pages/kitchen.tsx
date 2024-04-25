@@ -123,7 +123,7 @@ const ManageTable = () => {
                           {orderDetail.items.map((item, index) => (
                             <StyledTableRow key={index}>
                               <StyledTableCell style={{ width: 400 }}>
-                                {findMenuById(item.menu_id)?.name}
+                                {item.menu_name}
                               </StyledTableCell>
                               <StyledTableCell style={{ width: 100 }}>
                                 {item.quantity}
