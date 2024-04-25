@@ -156,6 +156,7 @@ const Cart = () => {
       date: formattedDate,
       items: validProducts.map((product) => ({
         menu_id: product.id,
+        menu_name: product.name,
         quantity: product.quantity,
         note: product.note ? product.note : note,
         orderdetails_price: product.quantity * product.price,

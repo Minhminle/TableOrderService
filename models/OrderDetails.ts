@@ -12,6 +12,7 @@ import {
 // Định nghĩa một lớp mới để phản ánh cấu trúc dữ liệu của mỗi mục trong items array
 export class OrderItem {
   menu_id: string;
+  menu_name: string;
   orderdetails_price: number;
   quantity: number;
   note: string;
@@ -19,12 +20,14 @@ export class OrderItem {
 
   constructor(
     menu_id: string,
+    menu_name: string,
     orderdetails_price: number,
     quantity: number,
     note: string = "",
     itemstatus: boolean = true
   ) {
     this.menu_id = menu_id;
+    this.menu_name = menu_name;
     this.orderdetails_price = orderdetails_price;
     this.quantity = quantity;
     this.note = note;
@@ -80,6 +83,7 @@ export function useFetchOrderDetails(tableId: string) {
               (item: any) =>
                 new OrderItem(
                   item.menu_id,
+                  item.menu_name,
                   item.orderdetails_price,
                   item.quantity
                 )
@@ -135,6 +139,7 @@ export function useFetchOrderHandle() {
             (item: any) =>
               new OrderItem(
                 item.menu_id,
+                item.menu_name,
                 item.orderdetails_price,
                 item.quantity
               )
