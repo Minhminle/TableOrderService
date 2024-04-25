@@ -71,9 +71,20 @@ const Home = () => {
   const router = useRouter();
   const tableId = router.query.tableId as string;
 
-
-
-
+  const typeMapping = {
+    All: "Tất cả",
+    Pickle: "Đồ chua - Bánh mì",
+    Beverages: "Nước ngọt - Trà",
+    Beef: "Bò nướng",
+    Meat: "Heo - Gà - Hải sản",
+    Soda: "Soda mùi",
+    Vegetable: "Rau nướng",
+    Hotpots: "Lẩu",
+    Combo: "Combo Nướng & Lẩu",
+    Sausace: "Sốt",
+  };
+  const getTypeName = (type: keyof typeof typeMapping) =>
+    typeMapping[type] || type;
 
   const handleViewCart = () => {
     router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
@@ -262,7 +273,9 @@ const Home = () => {
               alignItems="center"
               gap="10px"
             >
-              <Typography>{selectedType}</Typography>
+              <Typography>
+                {getTypeName(selectedType as keyof typeof typeMapping)}
+              </Typography>
               <Box
                 component="img"
                 width="5"
@@ -313,7 +326,7 @@ const Home = () => {
                               }}
                             />
                             <Typography sx={{ fontWeight: 700 }}>
-                              {type}
+                              {getTypeName(type as keyof typeof typeMapping)}
                             </Typography>
                           </Stack>
                         </Box>

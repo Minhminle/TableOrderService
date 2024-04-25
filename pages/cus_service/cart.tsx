@@ -102,7 +102,6 @@ const Cart = () => {
   const minutes = currentDate.getMinutes();
   const seconds = currentDate.getSeconds();
   const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-
   const sendOrder = async () => {
     // Cập nhật trạng thái show mới nhất từ cơ sở dữ liệu
     const updatedProducts = await Promise.all(
@@ -157,6 +156,7 @@ const Cart = () => {
       date: formattedDate,
       items: validProducts.map((product) => ({
         menu_id: product.id,
+        menu_name: product.name,
         quantity: product.quantity,
         note: product.note ? product.note : note,
         orderdetails_price: product.quantity * product.price,
