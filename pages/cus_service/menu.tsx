@@ -410,51 +410,55 @@ const Home = () => {
                 return (
                   <React.Fragment key={index}>
                     <Grid container spacing={2}>
-                      {typeMenus.map((menu, menuIndex) => (
-                        <Grid
-                          item
-                          xs={6}
-                          key={menuIndex}
-                          onClick={() => handleAddToCart(menu.id)}
-                        >
-                          <ListItem
-                            sx={{
-                              justifyContent: "flex",
-                              flexDirection: "column",
-                              background: "white",
-                              borderRadius: "16px",
-                              height: "260px",
-                              border: selectedItems.includes(menu.id)
-                                ? "2px solid red"
-                                : "none",
-                            }}
+                      {typeMenus
+                        .filter(
+                          (menu) => menu.show === true && menu.price !== 0
+                        )
+                        .map((menu, menuIndex) => (
+                          <Grid
+                            item
+                            xs={6}
+                            key={menuIndex}
+                            onClick={() => handleAddToCart(menu.id)}
                           >
-                            <Stack
-                              direction="column"
-                              alignItems="center"
-                              sx={{ pt: "20px" }}
+                            <ListItem
+                              sx={{
+                                justifyContent: "flex",
+                                flexDirection: "column",
+                                background: "white",
+                                borderRadius: "16px",
+                                height: "260px",
+                                border: selectedItems.includes(menu.id)
+                                  ? "2px solid red"
+                                  : "none",
+                              }}
                             >
-                              <Box
-                                component="img"
-                                alt={menu.name}
-                                src={menu.path}
-                                sx={{
-                                  maxWidth: "120px",
-                                  maxHeight: "120px",
-                                  pb: "10px",
-                                  borderRadius: "16px",
-                                }}
-                              />
-                              <Typography sx={{ fontWeight: 700 }}>
-                                {menu.name}
-                              </Typography>
-                              <Typography sx={{ fontWeight: 700 }}>
-                                {menu.price.toLocaleString("vi-VN")}VNĐ
-                              </Typography>
-                            </Stack>
-                          </ListItem>
-                        </Grid>
-                      ))}
+                              <Stack
+                                direction="column"
+                                alignItems="center"
+                                sx={{ pt: "20px" }}
+                              >
+                                <Box
+                                  component="img"
+                                  alt={menu.name}
+                                  src={menu.path}
+                                  sx={{
+                                    maxWidth: "120px",
+                                    maxHeight: "120px",
+                                    pb: "10px",
+                                    borderRadius: "16px",
+                                  }}
+                                />
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.name}
+                                </Typography>
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.price.toLocaleString("vi-VN")}VNĐ
+                                </Typography>
+                              </Stack>
+                            </ListItem>
+                          </Grid>
+                        ))}
                     </Grid>
                     {index !== sortedMenusByType.length - 1 && (
                       <Box sx={{ height: "33px" }} />
@@ -471,51 +475,55 @@ const Home = () => {
                 return (
                   <React.Fragment key={index}>
                     <Grid container spacing={2}>
-                      {typeMenus.map((menu, menuIndex) => (
-                        <Grid
-                          item
-                          xs={6}
-                          key={menuIndex}
-                          onClick={() => handleAddToCart(menu.id)}
-                        >
-                          <ListItem
-                            sx={{
-                              justifyContent: "flex",
-                              flexDirection: "column",
-                              background: "white",
-                              borderRadius: "16px",
-                              height: "260px",
-                              border: selectedItems.includes(menu.id)
-                                ? "2px solid red"
-                                : "none",
-                            }}
+                      {typeMenus
+                        .filter(
+                          (menu) => menu.show === true && menu.price !== 0
+                        )
+                        .map((menu, menuIndex) => (
+                          <Grid
+                            item
+                            xs={6}
+                            key={menuIndex}
+                            onClick={() => handleAddToCart(menu.id)}
                           >
-                            <Stack
-                              direction="column"
-                              alignItems="center"
-                              sx={{ pt: "20px" }}
+                            <ListItem
+                              sx={{
+                                justifyContent: "flex",
+                                flexDirection: "column",
+                                background: "white",
+                                borderRadius: "16px",
+                                height: "260px",
+                                border: selectedItems.includes(menu.id)
+                                  ? "2px solid red"
+                                  : "none",
+                              }}
                             >
-                              <Box
-                                component="img"
-                                alt={menu.name}
-                                src={menu.path}
-                                sx={{
-                                  maxWidth: "120px",
-                                  maxHeight: "120px",
-                                  pb: "10px",
-                                  borderRadius: "16px",
-                                }}
-                              />
-                              <Typography sx={{ fontWeight: 700 }}>
-                                {menu.name}
-                              </Typography>
-                              <Typography sx={{ fontWeight: 700 }}>
-                                {menu.price.toLocaleString("vi-VN")}VNĐ
-                              </Typography>
-                            </Stack>
-                          </ListItem>
-                        </Grid>
-                      ))}
+                              <Stack
+                                direction="column"
+                                alignItems="center"
+                                sx={{ pt: "20px" }}
+                              >
+                                <Box
+                                  component="img"
+                                  alt={menu.name}
+                                  src={menu.path}
+                                  sx={{
+                                    maxWidth: "120px",
+                                    maxHeight: "120px",
+                                    pb: "10px",
+                                    borderRadius: "16px",
+                                  }}
+                                />
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.name}
+                                </Typography>
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.price.toLocaleString("vi-VN")}VNĐ
+                                </Typography>
+                              </Stack>
+                            </ListItem>
+                          </Grid>
+                        ))}
                     </Grid>
                     {index !== sortedMenusByType.length - 1 && (
                       <Box sx={{ height: "15px" }} />

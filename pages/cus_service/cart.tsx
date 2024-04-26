@@ -113,10 +113,10 @@ const Cart = () => {
       })
     );
 
-    //Hàm kiểm tra id món có tồn tại trong Menus hay không
-
     // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
-    const validProducts = updatedProducts.filter((product) => product.show);
+    const validProducts = updatedProducts.filter(
+      (product) => product.show && product.id
+    );
 
     // Cập nhật trạng thái show trong localStorage
     localStorage.setItem("cartItems", JSON.stringify(validProducts));
