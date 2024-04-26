@@ -1,43 +1,83 @@
 import { useEffect, useState } from "react";
-import { Typography, Grid } from "@mui/material";
-import { BillDetails, useFetchBillDetails } from "@/models/Bill";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { firebaseConfig } from "@/models/Config";
+import { BillDetails, BillItem } from "@/models/Bill";
 
-const Bills = () => {
-  const billDetailsList: BillDetails[] = useFetchBillDetails();
+// Khởi tạo Firebase App
+const firebaseApp = initializeApp(firebaseConfig);
 
-  console.log("Bill Details List:", billDetailsList); // Log dữ liệu billDetailsList để kiểm tra
+// Lấy đối tượng Firestore
+const firestore = getFirestore(firebaseApp);
+
+// Component React để lấy dữ liệu từ Firestore
+function FirebaseDataComponent() {
+  const [bills, setBills] = useState<BillDetails[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const billDetailsCollection = collection(firestore, "Bills"); // Thay "billDetails" bằng tên của collection trên Firestore của bạn
+        const snapshot = await getDocs(billDetailsCollection);
+
+        const billsData: BillDetails[] = [];
+
+        snapshot.forEach((doc) => {
+          const billData = doc.data();
+          const { id, items, date, paymentStatus, totalPrice } = billData;
+
+          // Chuyển đổi dữ liệu từ Firestore thành đối tượng BillDetails
+          const billItems: BillItem[] = items.map((item: any) => {
+            return new BillItem(
+              item.menu_id,
+              item.bill_price,
+              item.quantity,
+              item.note,
+              item.itemstatus
+            );
+          });
+
+          const billDetails = new BillDetails(
+            id,
+            billItems,
+            new Date(date), // Chuyển đổi ngày từ dạng string sang Date
+            paymentStatus,
+            totalPrice
+          );
+
+          billsData.push(billDetails);
+        });
+
+        setBills(billsData);
+      } catch (error) {
+        console.error("Error fetching bills: ", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <>
-      <Typography variant="h4" gutterBottom>
-        All Bills
-      </Typography>
-      <Grid container spacing={3}>
-        {billDetailsList.map((bill) => (
-          <Grid item key={bill.id} xs={12}>
-            <div style={{ border: "1px solid #ccc", padding: "10px" }}>
-              <Typography variant="h6">Bill ID: {bill.id}</Typography>
-              <Typography variant="body1">
-                Date: {bill.date.toLocaleDateString()}
-              </Typography>
-              <Typography variant="body1">
-                Total Price: {bill.totalPrice.toLocaleString("vi-VN")} VNĐ
-              </Typography>
-              <Typography variant="body1">Items:</Typography>
-              <ul>
-                {bill.items.map((item, index) => (
-                  <li key={index}>
-                    Menu ID: {item.menu_id} - Quantity: {item.quantity} - Price:{" "}
-                    {item.bill_price.toLocaleString("vi-VN")} VNĐ
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Grid>
+    <div>
+      <h2>Bill Details</h2>
+      <ul>
+        {bills.map((bill) => (
+          <li key={bill.id}>
+            <p>Date: {bill.date.toDateString()}</p>
+            <p>Total Price: {bill.totalPrice}</p>
+            <p>Payment Status: {bill.paymentStatus ? "Paid" : "Not Paid"}</p>
+            <ul>
+              {bill.items.map((item, index) => (
+                <li key={index}>
+                  {item.quantity} x {item.menu_id} - {item.bill_price}
+                </li>
+              ))}
+            </ul>
+          </li>
         ))}
-      </Grid>
-    </>
+      </ul>
+    </div>
   );
-};
+}
 
-export default Bills;
+export default FirebaseDataComponent;
