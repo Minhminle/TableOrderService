@@ -2,18 +2,33 @@ import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useFetchLogin } from "@/models/Login";
 import router from "next/router";
+import { compare } from "bcryptjs";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { logins } = useFetchLogin();
-  const handleLogin = () => {
-    const user = logins.find((login) => login.username === username && login.password === password);
+
+  const handleLogin = async () => {
+    const user = logins.find((login) => login.username === username);
     if (user) {
-      router.push("http://localhost:3000/ad_service/manage");
+      const isPasswordMatch = await compare(password, user.password);
+      if (isPasswordMatch) {
+        router.push("/ad_service/manage");
+      } else {
+        alert("Username or password is incorrect");
+      }
     } else {
       alert("Username or password is incorrect");
     }
   };
+
+  const clicktoSignin = () => {
+    router.push("/login_service/signin");
+  };
+  const clicktoChangepassword =()=>{
+    router.push("/login_service/acount_edit")
+  }
 
   return (
     <>
@@ -44,10 +59,23 @@ const Login = () => {
               "&:hover": {
                 color: "blue",
                 cursor: "pointer",
-              },
+              },  
             }}
+            onClick={clicktoChangepassword}
           >
             Change password your account
+          </Typography>
+          <Typography
+            sx={{
+              textAlign: "center",
+              "&:hover": {
+                color: "blue",
+                cursor: "pointer",
+              },
+            }}
+            onClick={clicktoSignin}
+          >
+            Sign in
           </Typography>
         </Stack>
       </Box>

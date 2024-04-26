@@ -4,7 +4,6 @@ import { Table, useFetchTables } from "@/models/Tables";
 
 const Test = () => {
   const tables = useFetchTables();
-
   return (
     <Box>
       <h2>List of Table IDs:</h2>

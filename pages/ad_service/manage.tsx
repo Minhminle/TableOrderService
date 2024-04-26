@@ -42,26 +42,20 @@ import {
 } from "firebase/firestore";
 import {
   ref,
-  uploadBytes,
+  uploadBytes, 
   getDownloadURL,
-  deleteObject,
+  deleteObject,  
 } from "firebase/storage";
 import { getStorage } from "firebase/storage";
 import { confirmAlert } from "react-confirm-alert"; // Import thư viện react-confirm-alert
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { query, where, getDocs } from "firebase/firestore";
-import { Console } from "console";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { green } from "@mui/material/colors";
-
-
 const ManageTable = () => {
   const tables = useFetchTables();
-  
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
-
   const fetchedMenus = useFetchMenus();
 
   const app = initializeApp(firebaseConfig);
@@ -80,40 +74,45 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
-  const handlePaymentConfirmation = () => {
-
-    confirmAlert({
-      title: "Xác Nhận Thanh Toán",
-      message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
-      buttons: [
-        {
-          label: "Đồng Ý",
-          onClick: async () => {
-            try {
-              const orderDetailsRef = collection(firestore, "OrderDetails");
-              const querySnapshot = await getDocs(
-                query(orderDetailsRef, where("tableId", "==", selectedTableId))
-              );
-              querySnapshot.forEach(async (doc) => {
-                const billRef = collection(firestore, "Bills");
-                await addDoc(billRef, doc.data());
-                await deleteDoc(doc.ref);
+ const handlePaymentConfirmation = async () => {
+  confirmAlert({
+    title: "Xác Nhận Thanh Toán",
+    message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
+    buttons: [
+      {
+        label: "Đồng Ý",
+        onClick: async () => {  
+          try {
+            const orderDetailsRef = collection(firestore, "OrderDetails");
+            const querySnapshot = await getDocs(
+              query(orderDetailsRef, where("tableId", "==", selectedTableId))
+            );
+            querySnapshot.forEach(async (doc) => {
+              const billRef = collection(firestore, "Bills");
+              updateDoc(doc.ref, { paymentStatus: true });
+              const orderDetailData = doc.data();
+              await addDoc(billRef, {
+                ...orderDetailData,
+                paymentStatus: true 
               });
-              window.location.reload();
-            } catch (error) {
-              console.error("Error updating payment status: ", error);
-            }
-          },
+              await updateDoc(doc.ref, { paymentStatus: true });
+            });
+            window.location.reload();
+          } catch (error) {
+            console.error("Error updating payment status: ", error);
+          }
         },
-        {
-          label: "Hủy",
-          onClick: () => {
-            // Hủy bỏ xác nhận thanh toán
-          },
+      },
+      {
+        label: "Hủy",
+        onClick: () => {
+          // Hủy bỏ xác nhận thanh toán
         },
-      ],
-    });
-  };
+      },
+    ],
+  });
+};
+
 
   const typeMapping = {
     All: "Tất cả",

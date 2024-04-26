@@ -102,7 +102,7 @@ const Cart = () => {
   const minutes = currentDate.getMinutes();
   const seconds = currentDate.getSeconds();
   const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-  const sendOrder = () => {
+ 
     const sendOrder = async () => {
       // Cập nhật trạng thái show mới nhất từ cơ sở dữ liệu
       const updatedProducts = await Promise.all(
@@ -371,7 +371,7 @@ const Cart = () => {
         </Box>
       </>
     );
-  };
+  
 };
 
 export default Cart;
