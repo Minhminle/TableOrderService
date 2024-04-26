@@ -71,10 +71,6 @@ const Home = () => {
   const router = useRouter();
   const tableId = router.query.tableId as string;
 
-
-
-
-
   const handleViewCart = () => {
     router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
   };
@@ -138,13 +134,13 @@ const Home = () => {
       }
     };
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    }, 20000);
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 20000);
 
-    return () => {
-      clearInterval(interval); // Xóa interval khi component bị unmount
-    };
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, []); // Dùng mảng dependency rỗng để chỉ gọi useEffect một lần sau khi component được render
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");

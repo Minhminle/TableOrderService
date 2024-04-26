@@ -12,6 +12,7 @@ import {
 // Định nghĩa một lớp mới để phản ánh cấu trúc dữ liệu của mỗi mục trong items array
 export class OrderItem {
   menu_id: string;
+  menu_name: string;
   orderdetails_price: number;
   quantity: number;
   note: string;
@@ -19,12 +20,14 @@ export class OrderItem {
 
   constructor(
     menu_id: string,
+    menu_name: string,
     orderdetails_price: number,
     quantity: number,
     note: string = "",
     itemstatus: boolean = true
   ) {
     this.menu_id = menu_id;
+    this.menu_name = menu_name;
     this.orderdetails_price = orderdetails_price;
     this.quantity = quantity;
     this.note = note;
@@ -80,6 +83,7 @@ export function useFetchOrderDetails(tableId: string) {
               (item: any) =>
                 new OrderItem(
                   item.menu_id,
+                  item.menu_name,
                   item.orderdetails_price,
                   item.quantity
                 )
@@ -87,12 +91,14 @@ export function useFetchOrderDetails(tableId: string) {
             return new OrderDetails(
               id,
               items,
-              data.orderDate,
+              data.date, // Chuyển đổi orderDate thành kiểu Date
               data.paymentStatus,
               data.totalPrice
             );
           })
           .filter((orderDetail) => !orderDetail.paymentStatus); // Lọc các đơn hàng có paymentStatus là false
+        // Sắp xếp orderDetailsList theo trường date
+        orderDetailsList.sort((a, b) => a.date.getTime() - b.date.getTime());
         setOrderDetails(orderDetailsList);
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -100,7 +106,68 @@ export function useFetchOrderDetails(tableId: string) {
     };
 
     fetchData();
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, [tableId]);
+
+  return orderDetails;
+}
+
+export function useFetchOrderHandle() {
+  const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
+
+  useEffect(() => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const fetchData = async () => {
+      try {
+        const orderDetailsCollection = collection(db, "OrderDetails");
+        const q = query(
+          orderDetailsCollection,
+          where("paymentStatus", "==", false)
+        );
+        const querySnapshot = await getDocs(q);
+        const orderDetailsList = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          // Lấy ID của OrderDetails từ doc.id
+          const id = doc.id;
+          // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
+          const items = data.items.map(
+            (item: any) =>
+              new OrderItem(
+                item.menu_id,
+                item.menu_name,
+                item.orderdetails_price,
+                item.quantity
+              )
+          );
+          return new OrderDetails(
+            id,
+            items,
+            data.date,
+            data.paymentStatus,
+            data.totalPrice
+          );
+        });
+        setOrderDetails(orderDetailsList);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    fetchData();
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
+  }, []);
 
   return orderDetails;
 }

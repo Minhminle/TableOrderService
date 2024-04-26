@@ -111,6 +111,7 @@ const ManageTable = () => {
                       variant="h6"
                       sx={{ marginBottom: "10px" }}
                     >{`OrderDetail #${orderIndex + 1}`}</Typography>
+                    <Typography variant="subtitle1">{`Ngày: ${orderDetail.date}`}</Typography>
                     <Table>
                       <Box
                         style={{
@@ -123,7 +124,7 @@ const ManageTable = () => {
                           {orderDetail.items.map((item, index) => (
                             <StyledTableRow key={index}>
                               <StyledTableCell style={{ width: 400 }}>
-                                {findMenuById(item.menu_id)?.name}
+                                {item.menu_name}
                               </StyledTableCell>
                               <StyledTableCell style={{ width: 100 }}>
                                 {item.quantity}
