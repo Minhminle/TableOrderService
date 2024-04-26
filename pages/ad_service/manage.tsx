@@ -52,8 +52,16 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import { query, where, getDocs } from "firebase/firestore";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+<<<<<<< HEAD
 const ManageTable = () => {
   const tables = useFetchTables();
+=======
+import { green } from "@mui/material/colors";
+
+const ManageTable = () => {
+  const tables = useFetchTables();
+
+>>>>>>> develop
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
   const fetchedMenus = useFetchMenus();
@@ -74,6 +82,7 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
+<<<<<<< HEAD
  const handlePaymentConfirmation = async () => {
   confirmAlert({
     title: "Xác Nhận Thanh Toán",
@@ -94,6 +103,28 @@ const ManageTable = () => {
               await addDoc(billRef, {
                 ...orderDetailData,
                 paymentStatus: true 
+=======
+  const handlePaymentConfirmation = (tableId: string, totalPayment: number) => {
+    confirmAlert({
+      title: "Xác Nhận Thanh Toán",
+      message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
+        "vi-VN"
+      )} VNĐ?`,
+      buttons: [
+        {
+          label: "Đồng Ý",
+          onClick: async () => {
+            try {
+              const orderDetailsRef = collection(firestore, "OrderDetails");
+              const querySnapshot = await getDocs(
+                query(orderDetailsRef, where("tableId", "==", selectedTableId))
+              );
+              querySnapshot.forEach(async (doc) => {
+                const billRef = collection(firestore, "Bills");
+                updateDoc(doc.ref, { paymentStatus: true });
+                await addDoc(billRef, doc.data());
+                await deleteDoc(doc.ref);
+>>>>>>> develop
               });
               await updateDoc(doc.ref, { paymentStatus: true });
             });
@@ -460,7 +491,8 @@ const ManageTable = () => {
                             <Grid item xs={6}>
                               {/* Tên và thông tin khác về menu */}
                               <Typography variant="subtitle1">
-                                {findMenuById(item.menu_id)?.name}
+                                {item.menu_name}
+                                {/* {findMenuById(item.menu_id)?.name} */}
                               </Typography>
                             </Grid>
                             <Grid item xs={1}>
@@ -521,7 +553,7 @@ const ManageTable = () => {
                       backgroundColor: "gray",
                     }}
                   >
-                    Tạm Tính
+                    Xác nhận
                   </Button>
                   <Button
                     variant="contained"
@@ -531,7 +563,9 @@ const ManageTable = () => {
                       color: "white",
                       backgroundColor: "green",
                     }}
-                    onClick={handlePaymentConfirmation}
+                    onClick={() =>
+                      handlePaymentConfirmation(selectedTableId, totalPayment)
+                    }
                   >
                     Thanh Toán
                   </Button>
@@ -828,5 +862,3 @@ export default ManageTable;
 function commitBatch(batch: WriteBatch) {
   throw new Error("Function not implemented.");
 }
-
-

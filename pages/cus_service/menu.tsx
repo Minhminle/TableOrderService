@@ -70,6 +70,25 @@ const Home = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
   const tableId = router.query.tableId as string;
+<<<<<<< HEAD
+=======
+
+  const typeMapping = {
+    All: "Tất cả",
+    Pickle: "Đồ chua - Bánh mì",
+    Beverages: "Nước ngọt - Trà",
+    Beef: "Bò nướng",
+    Meat: "Heo - Gà - Hải sản",
+    Soda: "Soda mùi",
+    Vegetable: "Rau nướng",
+    Hotpots: "Lẩu",
+    Combo: "Combo Nướng & Lẩu",
+    Sausace: "Sốt",
+  };
+  const getTypeName = (type: keyof typeof typeMapping) =>
+    typeMapping[type] || type;
+
+>>>>>>> develop
   const handleViewCart = () => {
     router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
   };
@@ -132,14 +151,24 @@ const Home = () => {
         console.error("Error fetching data: ", error);
       }
     };
+<<<<<<< HEAD
     fetchData();  
+=======
+    fetchData();
+>>>>>>> develop
     // const interval = setInterval(() => {
     //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
     // }, 20000);
 
+<<<<<<< HEAD
     return () => {
       // clearInterval(interval); // Xóa interval khi component bị unmount
     };
+=======
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
+>>>>>>> develop
   }, []); // Dùng mảng dependency rỗng để chỉ gọi useEffect một lần sau khi component được render
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
@@ -257,7 +286,9 @@ const Home = () => {
               alignItems="center"
               gap="10px"
             >
-              <Typography>{selectedType}</Typography>
+              <Typography>
+                {getTypeName(selectedType as keyof typeof typeMapping)}
+              </Typography>
               <Box
                 component="img"
                 width="5"
@@ -308,7 +339,7 @@ const Home = () => {
                               }}
                             />
                             <Typography sx={{ fontWeight: 700 }}>
-                              {type}
+                              {getTypeName(type as keyof typeof typeMapping)}
                             </Typography>
                           </Stack>
                         </Box>
