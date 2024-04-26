@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { firebaseConfig } from "@/models/Config";
 import {
@@ -62,7 +62,17 @@ export function useFetchOrderDetails(tableId: string) {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    const app = initializeApp(firebaseConfig);
+    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    let app;
+    try {
+      app = getApp();
+    } catch (error) {
+      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+      app = initializeApp(firebaseConfig);
+    }
+
+    // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+    const firestore = getFirestore(app);
     const db = getFirestore(app);
 
     const fetchData = async () => {

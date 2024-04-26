@@ -124,13 +124,13 @@ const Home = () => {
 
   useEffect(() => {
     const firebaseConfig = {
-      apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
-      authDomain: "tableorderservice.firebaseapp.com",
-      projectId: "tableorderservice",
-      storageBucket: "tableorderservice.appspot.com",
-      messagingSenderId: "789767582873",
-      appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
-      measurementId: "G-25TT028B48",
+      apiKey: "AIzaSyAKE4ePUsVfXd8Nh7Bj9msbroBd_7tvbzg",
+      authDomain: "tableorder-90826.firebaseapp.com",
+      projectId: "tableorder-90826",
+      storageBucket: "tableorder-90826.appspot.com",
+      messagingSenderId: "723306684078",
+      appId: "1:723306684078:web:ca7f0fcc45dbc2ec02173f",
+      measurementId: "G-QSTWZS9F78",
     };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);

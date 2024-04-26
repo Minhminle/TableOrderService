@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFetchTables, Table } from "@/models/Tables";
 import { firebaseConfig } from "@/models/Config";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
   Box,
   Button,
@@ -63,7 +63,16 @@ const ManageTable = () => {
 
   const fetchedMenus = useFetchMenus();
 
-  const app = initializeApp(firebaseConfig);
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
+
+  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   const firestore = getFirestore(app);
 
   const [value, setValue] = React.useState<number | number[]>(1);
