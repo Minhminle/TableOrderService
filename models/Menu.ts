@@ -57,7 +57,9 @@ export function useFetchMenus() {
     fetchData();
     // const interval = setInterval(() => {
     //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 3000);
+
+    // }, 5000);
+
     // return () => {
     //   clearInterval(interval); // Xóa interval khi component bị unmount
     // };
