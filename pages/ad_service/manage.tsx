@@ -96,8 +96,8 @@ const ManageTable = () => {
               );
               querySnapshot.forEach(async (doc) => {
                 const billRef = collection(firestore, "Bills");
-                updateDoc(doc.ref, { paymentStatus: true });
                 await addDoc(billRef, doc.data());
+                updateDoc(doc.ref, { paymentStatus: true });
                 await deleteDoc(doc.ref);
               });
               window.location.reload();
