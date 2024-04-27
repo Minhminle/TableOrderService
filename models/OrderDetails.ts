@@ -88,15 +88,11 @@ export function useFetchOrderDetails(tableId: string) {
           return new OrderDetails(
             id,
             items,
-            new Date(data.orderDate), // Chuyển đổi thành kiểu Date
+            data.date,
             data.paymentStatus,
             data.totalPrice
           );
         });
-
-        // Sắp xếp mảng orderDetailsList theo trường date
-        orderDetailsList.sort((a, b) => a.date.getTime() - b.date.getTime());
-
         setOrderDetails(orderDetailsList);
       } catch (error) {
         console.error("Error fetching data: ", error);
