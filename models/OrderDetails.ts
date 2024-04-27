@@ -62,7 +62,14 @@ export function useFetchOrderDetails(tableId: string) {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    const app = initializeApp(firebaseConfig);
+    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    let app;
+    try {
+      app = getApp();
+    } catch (error) {
+      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+      app = initializeApp(firebaseConfig);
+    }
     const db = getFirestore(app);
 
     const fetchData = async () => {
@@ -113,7 +120,14 @@ export function useFetchOrderHandle() {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    const app = initializeApp(firebaseConfig);
+    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    let app;
+    try {
+      app = getApp();
+    } catch (error) {
+      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+      app = initializeApp(firebaseConfig);
+    }
     const db = getFirestore(app);
 
     const fetchData = async () => {

@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { firebaseConfig } from "@/models/Config";
 import { BillDetails, BillItem } from "@/models/Bill";
 
-// Khởi tạo Firebase App
-const firebaseApp = initializeApp(firebaseConfig);
+// // Khởi tạo Firebase App
+// const firebaseApp = initializeApp(firebaseConfig);
 
-// Lấy đối tượng Firestore
-const firestore = getFirestore(firebaseApp);
+// // Lấy đối tượng Firestore
+// const firestore = getFirestore(firebaseApp);
 
 // Component React để lấy dữ liệu từ Firestore
 function FirebaseDataComponent() {
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
+
+  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+  const db = getFirestore(app);
   const [bills, setBills] = useState<BillDetails[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const billDetailsCollection = collection(firestore, "Bills"); // Thay "billDetails" bằng tên của collection trên Firestore của bạn
+        const billDetailsCollection = collection(db, "Bills"); // Thay "billDetails" bằng tên của collection trên Firestore của bạn
         const snapshot = await getDocs(billDetailsCollection);
 
         const billsData: BillDetails[] = [];

@@ -88,51 +88,57 @@ const ManageTable = () => {
   const [newMenuShow, setNewMenuShow] = useState(true);
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
-  const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
-const handlePaymentConfirmation = async () => {
-  confirmAlert({
-    title: "Xác Nhận Thanh Toán",
-    message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
-    buttons: [
-      {
-        label: "Đồng Ý",
-        onClick: async () => {
-          try {
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            await runTransaction(db, async () => {
-              const orderDetailsRef = collection(db, "OrderDetails");
-              const querySnapshot = await getDocs(
-                query(orderDetailsRef, where("tableId", "==", selectedTableId))
-              );
-              querySnapshot.forEach(async (doc) => {
-                const billRef = collection(db, "Bills");
-                const orderDetailData = doc.data();
-                await addDoc(billRef, {
-                  ...orderDetailData,
-                  paymentStatus: true 
+  const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
+  const handlePaymentConfirmation = async (
+    tableId: string,
+    totalPayment: number
+  ) => {
+    confirmAlert({
+      title: "Xác Nhận Thanh Toán",
+      message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
+        "vi-VN"
+      )} VNĐ?`,
+      buttons: [
+        {
+          label: "Đồng Ý",
+          onClick: async () => {
+            try {
+              const app = initializeApp(firebaseConfig);
+              const db = getFirestore(app);
+              await runTransaction(db, async () => {
+                const orderDetailsRef = collection(db, "OrderDetails");
+                const querySnapshot = await getDocs(
+                  query(
+                    orderDetailsRef,
+                    where("tableId", "==", selectedTableId)
+                  )
+                );
+                querySnapshot.forEach(async (doc) => {
+                  const billRef = collection(db, "Bills");
+                  const orderDetailData = doc.data();
+                  await addDoc(billRef, {
+                    ...orderDetailData,
+                    paymentStatus: true,
+                  });
+                  await deleteDoc(doc.ref);
                 });
-                await deleteDoc(doc.ref);
               });
-            });
 
-            window.location.reload();
-          } catch (error) {
-            console.error("Error updating payment status: ", error);
-          }
+              window.location.reload();
+            } catch (error) {
+              console.error("Error updating payment status: ", error);
+            }
+          },
         },
-      },
-      {
-        label: "Hủy",
-        onClick: () => {
-          // Hủy bỏ xác nhận thanh toán
+        {
+          label: "Hủy",
+          onClick: () => {
+            // Hủy bỏ xác nhận thanh toán
+          },
         },
-      },
-    ],
-  });
-};
-
-
+      ],
+    });
+  };
 
   const typeMapping = {
     All: "Tất cả",
