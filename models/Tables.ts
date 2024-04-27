@@ -36,7 +36,6 @@ export function useFetchTables() {
       // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
       app = initializeApp(firebaseConfig);
     }
-
     // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
     const firestore = getFirestore(app);
 
@@ -71,12 +70,12 @@ export function useFetchTables() {
     };
 
     fetchData();
-    // const interval = setInterval(() => {
-    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 3000);
-    // return () => {
-    //   clearInterval(interval); // Xóa interval khi component bị unmount
-    // };
+    const interval = setInterval(() => {
+      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    }, 3000);
+    return () => {
+      clearInterval(interval); // Xóa interval khi component bị unmount
+    };
   }, []);
 
   return tables;

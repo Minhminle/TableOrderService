@@ -156,13 +156,13 @@ const Home = () => {
       }
     };
     fetchData();
-    // const interval = setInterval(() => {
-    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 20000);
+    const interval = setInterval(() => {
+      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    }, 3000);
 
-    // return () => {
-    //   clearInterval(interval); // Xóa interval khi component bị unmount
-    // };
+    return () => {
+      clearInterval(interval); // Xóa interval khi component bị unmount
+    };
   }, []); // Dùng mảng dependency rỗng để chỉ gọi useEffect một lần sau khi component được render
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
@@ -461,7 +461,7 @@ const Home = () => {
                         ))}
                     </Grid>
                     {index !== sortedMenusByType.length - 1 && (
-                      <Box sx={{ height: "33px" }} />
+                      <Box sx={{ height: "40px" }} />
                     )}
                   </React.Fragment>
                 );
@@ -526,7 +526,7 @@ const Home = () => {
                         ))}
                     </Grid>
                     {index !== sortedMenusByType.length - 1 && (
-                      <Box sx={{ height: "15px" }} />
+                      <Box sx={{ height: "30px" }} />
                     )}
                   </React.Fragment>
                 );

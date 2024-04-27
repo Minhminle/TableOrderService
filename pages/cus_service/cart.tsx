@@ -370,7 +370,7 @@ const Cart = () => {
           <Button
             variant="contained"
             style={{ width: "100%", background: "#ffffff", color: "gray" }}
-            onClick={handleExit}
+            onClick={BackMenu}
           >
             Thoát
           </Button>
