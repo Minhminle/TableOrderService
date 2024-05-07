@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFetchTables, Table } from "@/models/Tables";
 import { firebaseConfig } from "@/models/Config";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
   Box,
   Button,
@@ -39,6 +39,7 @@ import {
   writeBatch,
   WriteBatch,
   setDoc,
+  runTransaction,
 } from "firebase/firestore";
 import {
   ref,
@@ -63,7 +64,16 @@ const ManageTable = () => {
 
   const fetchedMenus = useFetchMenus();
 
-  const app = initializeApp(firebaseConfig);
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
+
+  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   const firestore = getFirestore(app);
 
   const [value, setValue] = React.useState<number | number[]>(1);
@@ -78,8 +88,16 @@ const ManageTable = () => {
   const [newMenuShow, setNewMenuShow] = useState(true);
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
+<<<<<<< HEAD
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
   const handlePaymentConfirmation = (tableId: string, totalPayment: number) => {
+=======
+  const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
+  const handlePaymentConfirmation = async (
+    tableId: string,
+    totalPayment: number
+  ) => {
+>>>>>>> develop
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
       message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
@@ -90,6 +108,7 @@ const ManageTable = () => {
           label: "Đồng Ý",
           onClick: async () => {
             try {
+<<<<<<< HEAD
               const orderDetailsRef = collection(firestore, "OrderDetails");
               const querySnapshot = await getDocs(
                 query(orderDetailsRef, where("tableId", "==", selectedTableId))
@@ -99,7 +118,29 @@ const ManageTable = () => {
                 updateDoc(doc.ref, { paymentStatus: true });
                 await addDoc(billRef, doc.data());
                 await deleteDoc(doc.ref);
+=======
+              const app = initializeApp(firebaseConfig);
+              const db = getFirestore(app);
+              await runTransaction(db, async () => {
+                const orderDetailsRef = collection(db, "OrderDetails");
+                const querySnapshot = await getDocs(
+                  query(
+                    orderDetailsRef,
+                    where("tableId", "==", selectedTableId)
+                  )
+                );
+                querySnapshot.forEach(async (doc) => {
+                  const billRef = collection(db, "Bills");
+                  const orderDetailData = doc.data();
+                  await addDoc(billRef, {
+                    ...orderDetailData,
+                    paymentStatus: true,
+                  });
+                  await deleteDoc(doc.ref);
+                });
+>>>>>>> develop
               });
+
               window.location.reload();
             } catch (error) {
               console.error("Error updating payment status: ", error);

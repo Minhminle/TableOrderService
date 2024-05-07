@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
   getFirestore,
   collection,
@@ -28,7 +28,17 @@ export function useFetchTables() {
   const [tables, setTables] = useState<Table[]>([]);
 
   useEffect(() => {
-    const app = initializeApp(firebaseConfig);
+    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    let app;
+    try {
+      app = getApp();
+    } catch (error) {
+      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+      app = initializeApp(firebaseConfig);
+    }
+    // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+    const firestore = getFirestore(app);
+
     const db = getFirestore(app);
 
     const fetchData = async () => {
@@ -62,7 +72,11 @@ export function useFetchTables() {
     fetchData();
     // const interval = setInterval(() => {
     //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+<<<<<<< HEAD
     // }, 5000);
+=======
+    // }, 3000);
+>>>>>>> develop
     // return () => {
     //   clearInterval(interval); // Xóa interval khi component bị unmount
     // };
