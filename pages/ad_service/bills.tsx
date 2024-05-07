@@ -1,8 +1,18 @@
-import { useEffect, useState } from "react";
-import { initializeApp, getApp } from "firebase/app";
+import React, { useEffect, useState } from "react";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getApp, initializeApp } from "firebase/app";
 import { firebaseConfig } from "@/models/Config";
 import { BillDetails, BillItem } from "@/models/Bill";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box,
+} from "@mui/material";
 
 // // Khởi tạo Firebase App
 // const firebaseApp = initializeApp(firebaseConfig);
@@ -99,25 +109,41 @@ function FirebaseDataComponent() {
   }, []);
 
   return (
-    <div>
+    <Box>
       <h2>Bill Details</h2>
-      <ul>
-        {bills.map((bill) => (
-          <li key={bill.id}>
-            <p>Date: {bill.date.toDateString()}</p>
-            <p>Total Price: {bill.totalPrice}</p>
-            <p>Payment Status: {bill.paymentStatus ? "Paid" : "Not Paid"}</p>
-            <ul>
-              {bill.items.map((item, index) => (
-                <li key={index}>
-                  {item.quantity} x {item.menu_id} - {item.bill_price}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-    </div>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Total Price</TableCell>
+              <TableCell>Payment Status</TableCell>
+              <TableCell>Items</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bills.map((bill) => (
+              <TableRow key={bill.id}>
+                <TableCell>{bill.date.toDateString()}</TableCell>
+                <TableCell>{bill.totalPrice}</TableCell>
+                <TableCell>
+                  {bill.paymentStatus ? "Paid" : "Not Paid"}
+                </TableCell>
+                <TableCell>
+                  <ul>
+                    {bill.items.map((item, index) => (
+                      <li key={index}>
+                        {item.quantity} x {item.menu_id} - {item.bill_price}
+                      </li>
+                    ))}
+                  </ul>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
 

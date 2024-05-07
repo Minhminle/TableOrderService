@@ -80,34 +80,6 @@ export function useFetchOrderDetails(tableId: string) {
           where("tableId", "==", tableId)
         );
         const querySnapshot = await getDocs(q);
-<<<<<<< HEAD
-        const orderDetailsList = querySnapshot.docs
-          .map((doc) => {
-            const data = doc.data();
-            // Lấy ID của OrderDetails từ doc.id
-            const id = doc.id;
-            // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
-            const items = data.items.map(
-              (item: any) =>
-                new OrderItem(
-                  item.menu_id,
-                  item.menu_name,
-                  item.orderdetails_price,
-                  item.quantity
-                )
-            );
-            return new OrderDetails(
-              id,
-              items,
-              data.date, // Chuyển đổi orderDate thành kiểu Date
-              data.paymentStatus,
-              data.totalPrice
-            );
-          })
-          .filter((orderDetail) => !orderDetail.paymentStatus); // Lọc các đơn hàng có paymentStatus là false
-        // Sắp xếp orderDetailsList theo trường date
-        orderDetailsList.sort((a, b) => a.date.getTime() - b.date.getTime());
-=======
         const orderDetailsList = querySnapshot.docs.map((doc) => {
           const data = doc.data();
           const id = doc.id;
@@ -123,16 +95,12 @@ export function useFetchOrderDetails(tableId: string) {
           return new OrderDetails(
             id,
             items,
-            new Date(data.orderDate), // Chuyển đổi thành kiểu Date
+            data.date, // Chuyển đổi thành kiểu Date
             data.paymentStatus,
             data.totalPrice
           );
         });
 
-        // Sắp xếp mảng orderDetailsList theo trường date
-        orderDetailsList.sort((a, b) => a.date.getTime() - b.date.getTime());
-
->>>>>>> develop
         setOrderDetails(orderDetailsList);
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -157,61 +125,6 @@ export function useFetchOrderHandle() {
       // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
       app = initializeApp(firebaseConfig);
     }
-    const db = getFirestore(app);
-
-    const fetchData = async () => {
-      try {
-        const orderDetailsCollection = collection(db, "OrderDetails");
-        const q = query(
-          orderDetailsCollection,
-          where("paymentStatus", "==", false)
-        );
-        const querySnapshot = await getDocs(q);
-        const orderDetailsList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          // Lấy ID của OrderDetails từ doc.id
-          const id = doc.id;
-          // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
-          const items = data.items.map(
-            (item: any) =>
-              new OrderItem(
-                item.menu_id,
-                item.menu_name,
-                item.orderdetails_price,
-                item.quantity
-              )
-          );
-          return new OrderDetails(
-            id,
-            items,
-            data.date,
-            data.paymentStatus,
-            data.totalPrice
-          );
-        });
-        setOrderDetails(orderDetailsList);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
-
-    fetchData();
-    // const interval = setInterval(() => {
-    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 3000);
-    // return () => {
-    //   clearInterval(interval); // Xóa interval khi component bị unmount
-    // };
-  }, []);
-
-  return orderDetails;
-}
-
-export function useFetchOrderHandle() {
-  const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
-
-  useEffect(() => {
-    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const fetchData = async () => {

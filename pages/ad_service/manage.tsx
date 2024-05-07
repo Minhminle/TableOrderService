@@ -88,16 +88,11 @@ const ManageTable = () => {
   const [newMenuShow, setNewMenuShow] = useState(true);
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
-<<<<<<< HEAD
-  const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
-  const handlePaymentConfirmation = (tableId: string, totalPayment: number) => {
-=======
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
   const handlePaymentConfirmation = async (
     tableId: string,
     totalPayment: number
   ) => {
->>>>>>> develop
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
       message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
@@ -108,17 +103,6 @@ const ManageTable = () => {
           label: "Đồng Ý",
           onClick: async () => {
             try {
-<<<<<<< HEAD
-              const orderDetailsRef = collection(firestore, "OrderDetails");
-              const querySnapshot = await getDocs(
-                query(orderDetailsRef, where("tableId", "==", selectedTableId))
-              );
-              querySnapshot.forEach(async (doc) => {
-                const billRef = collection(firestore, "Bills");
-                updateDoc(doc.ref, { paymentStatus: true });
-                await addDoc(billRef, doc.data());
-                await deleteDoc(doc.ref);
-=======
               const app = initializeApp(firebaseConfig);
               const db = getFirestore(app);
               await runTransaction(db, async () => {
@@ -138,7 +122,6 @@ const ManageTable = () => {
                   });
                   await deleteDoc(doc.ref);
                 });
->>>>>>> develop
               });
 
               window.location.reload();
@@ -488,7 +471,7 @@ const ManageTable = () => {
                 <Grid item xs={12}>
                   {/* Render order details based on selectedTableId */}
                   {orderDetails.map((orderDetail, orderIndex) => (
-                    <div key={orderIndex}>
+                    <Box key={orderIndex}>
                       {/* Hiển thị ID của OrderDetails */}
                       <Typography variant="subtitle1">
                         ID:{" "}
@@ -498,7 +481,7 @@ const ManageTable = () => {
                       </Typography>
                       {/* Lặp qua từng mục trong orderDetail.items */}
                       {orderDetail.items.map((item, index) => (
-                        <div key={index}>
+                        <Box key={index}>
                           <Grid container spacing={2}>
                             <Grid item xs={6}>
                               {/* Tên và thông tin khác về menu */}
@@ -526,7 +509,7 @@ const ManageTable = () => {
                               </Typography>
                             </Grid>
                           </Grid>
-                        </div>
+                        </Box>
                       ))}
                       {/* Thêm dấu gạch ngang sau mỗi OrderDetails */}
                       {orderIndex < orderDetails.length - 1 && (
@@ -537,7 +520,7 @@ const ManageTable = () => {
                           }}
                         />
                       )}
-                    </div>
+                    </Box>
                   ))}
                 </Grid>
               </Box>

@@ -123,13 +123,9 @@ const Cart = () => {
     );
 
     // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
-<<<<<<< HEAD
-    const validProducts = updatedProducts.filter((product) => product.show);
-=======
     const validProducts = updatedProducts.filter(
       (product) => product.show && product.id
     );
->>>>>>> develop
 
     // Cập nhật trạng thái show trong localStorage
     localStorage.setItem("cartItems", JSON.stringify(validProducts));
@@ -145,27 +141,6 @@ const Cart = () => {
       const invalidProductNames = invalidProducts
         .map((product) => product.name)
         .join(", ");
-<<<<<<< HEAD
-      alert(
-        `${invalidProductNames} đã dừng phục vụ. Vui lòng chỉnh sửa đơn hàng.`
-      );
-      return;
-    }
-
-    if (validProducts.length === 0) {
-      alert("Không có sản phẩm hợp lệ để gửi đơn hàng.");
-      return;
-    }
-    const orderRef = collection(firestore, "OrderDetails");
-    let tableId = "";
-    if (validProducts.length > 0) {
-      const firstProduct = validProducts.find(
-        (product) => product.tableId !== undefined && product.tableId !== null
-      );
-      tableId = firstProduct ? firstProduct.tableId : "";
-    }
-
-=======
       alert(`${invalidProductNames} tạm dừng phục vụ. Vui lòng chọn món khác.`);
       return;
     }
@@ -183,7 +158,6 @@ const Cart = () => {
       tableId = firstProduct ? firstProduct.tableId : "";
     }
 
->>>>>>> develop
     const order = {
       paymentStatus: false,
       tableId: tableId,
@@ -396,11 +370,7 @@ const Cart = () => {
           <Button
             variant="contained"
             style={{ width: "100%", background: "#ffffff", color: "gray" }}
-<<<<<<< HEAD
-            onClick={handleExit}
-=======
             onClick={BackMenu}
->>>>>>> develop
           >
             Thoát
           </Button>

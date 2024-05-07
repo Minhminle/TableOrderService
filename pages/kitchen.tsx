@@ -64,7 +64,6 @@ const ManageTable = () => {
     },
   }));
 
-  // Sắp xếp orderDetails theo ngày từ cũ nhất đến mới nhất
   const sortedOrderDetails = [...orderDetails].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -107,43 +106,48 @@ const ManageTable = () => {
           >
             Sản Phẩm
           </Typography>
-          <Box>
-            <Grid container spacing={2} justifyContent="center">
-              {sortedOrderDetails.map((orderDetail, orderIndex) => (
-                <Grid key={orderIndex} item style={{ width: "600px" }}>
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      sx={{ marginBottom: "10px" }}
-                    >{`OrderDetail #${orderIndex + 1}`}</Typography>
-                    <Typography variant="subtitle1">{`Ngày: ${orderDetail.date}`}</Typography>
-                    <Table>
-                      <Box
-                        style={{
-                          marginBottom: "20px",
-                          overflowY: "auto",
-                          maxHeight: 210,
-                        }}
-                      >
-                        <TableBody>
-                          {orderDetail.items.map((item, index) => (
-                            <StyledTableRow key={index}>
-                              <StyledTableCell style={{ width: 400 }}>
-                                {item.menu_name}
-                              </StyledTableCell>
-                              <StyledTableCell style={{ width: 100 }}>
-                                {item.quantity}
-                              </StyledTableCell>
-                            </StyledTableRow>
-                          ))}
-                        </TableBody>
-                      </Box>
-                    </Table>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
+          <Grid container spacing={2} justifyContent="center">
+            {sortedOrderDetails.map((orderDetail, orderIndex) => (
+              <Grid key={orderIndex} item style={{ width: "600px" }}>
+                <Box
+                  sx={{
+                    padding: "20px",
+                    border: "1px solid #ccc",
+                    borderRadius: "5px",
+                    marginTop: "10px",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{ marginBottom: "10px" }}
+                  >{`OrderDetail #${orderIndex + 1}`}</Typography>
+                  <Typography variant="subtitle1">{`Ngày: ${orderDetail.date}`}</Typography>
+                  <Table>
+                    <Box
+                      style={{
+                        marginBottom: "20px",
+                        overflowY: "auto",
+                        maxHeight: 210,
+                      }}
+                    >
+                      <TableBody>
+                        {orderDetail.items.map((item, index) => (
+                          <StyledTableRow key={index}>
+                            <StyledTableCell style={{ width: 400 }}>
+                              {item.menu_name}
+                            </StyledTableCell>
+                            <StyledTableCell style={{ width: 100 }}>
+                              {item.quantity}
+                            </StyledTableCell>
+                          </StyledTableRow>
+                        ))}
+                      </TableBody>
+                    </Box>
+                  </Table>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
         </Grid>
       </TabContext>
     </>

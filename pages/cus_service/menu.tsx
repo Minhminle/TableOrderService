@@ -77,8 +77,6 @@ const Home = () => {
     );
   });
 
-<<<<<<< HEAD
-=======
   const typeMapping = {
     All: "Tất cả",
     Pickle: "Đồ chua - Bánh mì",
@@ -95,7 +93,6 @@ const Home = () => {
   const getTypeName = (type: keyof typeof typeMapping) =>
     typeMapping[type] || type;
 
->>>>>>> develop
   const handleViewCart = () => {
     router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
   };
@@ -161,11 +158,7 @@ const Home = () => {
     fetchData();
     // const interval = setInterval(() => {
     //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-<<<<<<< HEAD
-    // }, 20000);
-=======
     // }, 3000);
->>>>>>> develop
 
     // return () => {
     //   clearInterval(interval); // Xóa interval khi component bị unmount
