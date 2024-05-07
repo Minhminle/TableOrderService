@@ -45,6 +45,18 @@ const ManageTable = () => {
     (a, b) => a.table_number - b.table_number
   );
 
+  // Sắp xếp orderDetails theo ngày từ cũ nhất đến mới nhất, sau đó đảo ngược thứ tự
+  const sortedOrderDetails = [...orderDetails]
+    .sort((a, b) => {
+      // Chuyển đổi ngày thành chuỗi định dạng YYYY-MM-DD
+      const dateA = a.date.toISOString().split("T")[0];
+      const dateB = b.date.toISOString().split("T")[0];
+
+      // So sánh ngày
+      return new Date(dateA).getTime() - new Date(dateB).getTime();
+    })
+    .reverse();
+
   const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.common.black,
@@ -63,11 +75,6 @@ const ManageTable = () => {
       border: 0,
     },
   }));
-
-  // Sắp xếp orderDetails theo ngày từ cũ nhất đến mới nhất
-  const sortedOrderDetails = [...orderDetails].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
 
   return (
     <>
