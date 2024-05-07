@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { initializeApp, getApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  onSnapshot,
+} from "firebase/firestore";
 import { firebaseConfig } from "@/models/Config";
 import {
   query,
@@ -62,52 +67,44 @@ export function useFetchOrderDetails(tableId: string) {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
     let app;
     try {
       app = getApp();
     } catch (error) {
-      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
       app = initializeApp(firebaseConfig);
     }
     const db = getFirestore(app);
 
-    const fetchData = async () => {
-      try {
-        const orderDetailsCollection = collection(db, "OrderDetails");
-        const q = query(
-          orderDetailsCollection,
-          where("tableId", "==", tableId)
+    const orderDetailsCollection = collection(db, "OrderDetails");
+    const q = query(orderDetailsCollection, where("tableId", "==", tableId));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const updatedOrderDetailsList: OrderDetails[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const id = doc.id;
+        const items = data.items.map(
+          (item: any) =>
+            new OrderItem(
+              item.menu_id,
+              item.menu_name,
+              item.orderdetails_price,
+              item.quantity
+            )
         );
-        const querySnapshot = await getDocs(q);
-        const orderDetailsList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          const id = doc.id;
-          const items = data.items.map(
-            (item: any) =>
-              new OrderItem(
-                item.menu_id,
-                item.menu_name,
-                item.orderdetails_price,
-                item.quantity
-              )
-          );
-          return new OrderDetails(
+        updatedOrderDetailsList.push(
+          new OrderDetails(
             id,
             items,
-            data.date, // Chuyển đổi thành kiểu Date
+            data.date,
             data.paymentStatus,
             data.totalPrice
-          );
-        });
+          )
+        );
+      });
+    });
 
-        setOrderDetails(orderDetailsList);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
-
-    fetchData();
+    return () => unsubscribe();
   }, [tableId]);
 
   return orderDetails;
