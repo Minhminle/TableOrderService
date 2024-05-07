@@ -111,75 +111,13 @@ export function useFetchOrderDetails(tableId: string) {
     };
 
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    }, 3000);
-    return () => {
-      clearInterval(interval); // Xóa interval khi component bị unmount
-    };
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, [tableId]);
 
   return orderDetails;
 }
-
-// export function useFetchOrderHandle() {
-//   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
-
-//   useEffect(() => {
-//     // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
-//     let app;
-//     try {
-//       app = getApp();
-//     } catch (error) {
-//       // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-//       app = initializeApp(firebaseConfig);
-//     }
-//     const db = getFirestore(app);
-
-//     const fetchData = async () => {
-//       try {
-//         const orderDetailsCollection = collection(db, "OrderDetails");
-//         const q = query(
-//           orderDetailsCollection,
-//           where("paymentStatus", "==", false)
-//         );
-//         const querySnapshot = await getDocs(q);
-//         const orderDetailsList = querySnapshot.docs.map((doc) => {
-//           const data = doc.data();
-//           // Lấy ID của OrderDetails từ doc.id
-//           const id = doc.id;
-//           // Chuyển đổi dữ liệu của mỗi mục items trong dữ liệu Firestore thành OrderItem
-//           const items = data.items.map(
-//             (item: any) =>
-//               new OrderItem(
-//                 item.menu_id,
-//                 item.menu_name,
-//                 item.orderdetails_price,
-//                 item.quantity
-//               )
-//           );
-//           return new OrderDetails(
-//             id,
-//             items,
-//             data.date,
-//             data.paymentStatus,
-//             data.totalPrice
-//           );
-//         });
-//         setOrderDetails(orderDetailsList);
-//       } catch (error) {
-//         console.error("Error fetching data: ", error);
-//       }
-//     };
-
-//     fetchData();
-//     const interval = setInterval(() => {
-//       fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-//     }, 3000);
-//     return () => {
-//       clearInterval(interval); // Xóa interval khi component bị unmount
-//     };
-//   }, []);
-
-//   return orderDetails;
-// }

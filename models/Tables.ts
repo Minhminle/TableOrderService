@@ -70,12 +70,12 @@ export function useFetchTables() {
     };
 
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    }, 3000);
-    return () => {
-      clearInterval(interval); // Xóa interval khi component bị unmount
-    };
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, []);
 
   return tables;

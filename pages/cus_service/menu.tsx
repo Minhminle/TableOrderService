@@ -124,13 +124,13 @@ const Home = () => {
 
   useEffect(() => {
     const firebaseConfig = {
-      apiKey: "AIzaSyAKE4ePUsVfXd8Nh7Bj9msbroBd_7tvbzg",
-      authDomain: "tableorder-90826.firebaseapp.com",
-      projectId: "tableorder-90826",
-      storageBucket: "tableorder-90826.appspot.com",
-      messagingSenderId: "723306684078",
-      appId: "1:723306684078:web:ca7f0fcc45dbc2ec02173f",
-      measurementId: "G-QSTWZS9F78",
+      apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
+      authDomain: "tableorderservice.firebaseapp.com",
+      projectId: "tableorderservice",
+      storageBucket: "tableorderservice.appspot.com",
+      messagingSenderId: "789767582873",
+      appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
+      measurementId: "G-25TT028B48",
     };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -156,13 +156,13 @@ const Home = () => {
       }
     };
     fetchData();
-    const interval = setInterval(() => {
-      fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    }, 3000);
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
 
-    return () => {
-      clearInterval(interval); // Xóa interval khi component bị unmount
-    };
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, []); // Dùng mảng dependency rỗng để chỉ gọi useEffect một lần sau khi component được render
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");
