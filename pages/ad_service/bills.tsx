@@ -1,23 +1,57 @@
 import { useEffect, useState } from "react";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { firebaseConfig } from "@/models/Config";
 import { BillDetails, BillItem } from "@/models/Bill";
 
-// Khởi tạo Firebase App
-const firebaseApp = initializeApp(firebaseConfig);
+// // Khởi tạo Firebase App
+// const firebaseApp = initializeApp(firebaseConfig);
 
-// Lấy đối tượng Firestore
-const firestore = getFirestore(firebaseApp);
+// // Lấy đối tượng Firestore
+// const firestore = getFirestore(firebaseApp);
+function convertDateFormat(dateString: string) {
+  // Phân tách ngày giờ thành các phần
+  const parts = dateString.split(" ");
+  const datePart = parts[0];
+  const timePart = parts[1];
+
+  // Phân tách ngày thành ngày, tháng và năm
+  const dateParts = datePart.split("/");
+  const day = dateParts[0];
+  const month = dateParts[1];
+  const year = dateParts[2];
+
+  // Phân tách giờ, phút và giây
+  const timeParts = timePart.split(":");
+  const hour = timeParts[0];
+  const minute = timeParts[1];
+  const second = timeParts[2];
+
+  // Kết hợp lại thành định dạng "MM/DD/YYYY HH:MM:SS"
+  const formattedDate = `${month}/${day}/${year} ${hour}:${minute}:${second}`;
+
+  return new Date(formattedDate); // Trả về một đối tượng Date mới
+}
 
 // Component React để lấy dữ liệu từ Firestore
 function FirebaseDataComponent() {
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
+
+  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+  const db = getFirestore(app);
   const [bills, setBills] = useState<BillDetails[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const billDetailsCollection = collection(firestore, "Bills"); // Thay "billDetails" bằng tên của collection trên Firestore của bạn
+        const billDetailsCollection = collection(db, "Bills"); // Thay "billDetails" bằng tên của collection trên Firestore của bạn
         const snapshot = await getDocs(billDetailsCollection);
 
         const billsData: BillDetails[] = [];
@@ -40,7 +74,7 @@ function FirebaseDataComponent() {
           const billDetails = new BillDetails(
             id,
             billItems,
-            new Date(date), // Chuyển đổi ngày từ dạng string sang Date
+            new Date(convertDateFormat(date)), // Chuyển đổi ngày từ dạng string sang Date
             paymentStatus,
             totalPrice
           );
@@ -55,6 +89,13 @@ function FirebaseDataComponent() {
     };
 
     fetchData();
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
+
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
   }, []);
 
   return (

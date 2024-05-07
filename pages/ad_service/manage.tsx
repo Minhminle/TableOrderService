@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFetchTables, Table } from "@/models/Tables";
 import { firebaseConfig } from "@/models/Config";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
   Box,
   Button,
@@ -39,34 +39,41 @@ import {
   writeBatch,
   WriteBatch,
   setDoc,
+  runTransaction,
 } from "firebase/firestore";
 import {
   ref,
-  uploadBytes, 
+  uploadBytes,
   getDownloadURL,
-  deleteObject,  
+  deleteObject,
 } from "firebase/storage";
 import { getStorage } from "firebase/storage";
 import { confirmAlert } from "react-confirm-alert"; // Import thư viện react-confirm-alert
 import "react-confirm-alert/src/react-confirm-alert.css";
 import { query, where, getDocs } from "firebase/firestore";
+import { Console } from "console";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-<<<<<<< HEAD
-const ManageTable = () => {
-  const tables = useFetchTables();
-=======
 import { green } from "@mui/material/colors";
 
 const ManageTable = () => {
   const tables = useFetchTables();
 
->>>>>>> develop
   const [selectedTableId, setSelectedTableId] = useState<string>(""); // Đặt giá trị mặc định là chuỗi rỗng
   const orderDetails = useFetchOrderDetails(selectedTableId);
+
   const fetchedMenus = useFetchMenus();
 
-  const app = initializeApp(firebaseConfig);
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
+
+  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   const firestore = getFirestore(app);
 
   const [value, setValue] = React.useState<number | number[]>(1);
@@ -81,30 +88,11 @@ const ManageTable = () => {
   const [newMenuShow, setNewMenuShow] = useState(true);
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
-  const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa
-<<<<<<< HEAD
- const handlePaymentConfirmation = async () => {
-  confirmAlert({
-    title: "Xác Nhận Thanh Toán",
-    message: `Xác nhận thanh toán cho bàn số ... với tổng tiền là ... VNĐ?`,
-    buttons: [
-      {
-        label: "Đồng Ý",
-        onClick: async () => {  
-          try {
-            const orderDetailsRef = collection(firestore, "OrderDetails");
-            const querySnapshot = await getDocs(
-              query(orderDetailsRef, where("tableId", "==", selectedTableId))
-            );
-            querySnapshot.forEach(async (doc) => {
-              const billRef = collection(firestore, "Bills");
-              updateDoc(doc.ref, { paymentStatus: true });
-              const orderDetailData = doc.data();
-              await addDoc(billRef, {
-                ...orderDetailData,
-                paymentStatus: true 
-=======
-  const handlePaymentConfirmation = (tableId: string, totalPayment: number) => {
+  const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
+  const handlePaymentConfirmation = async (
+    tableId: string,
+    totalPayment: number
+  ) => {
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
       message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
@@ -115,35 +103,42 @@ const ManageTable = () => {
           label: "Đồng Ý",
           onClick: async () => {
             try {
-              const orderDetailsRef = collection(firestore, "OrderDetails");
-              const querySnapshot = await getDocs(
-                query(orderDetailsRef, where("tableId", "==", selectedTableId))
-              );
-              querySnapshot.forEach(async (doc) => {
-                const billRef = collection(firestore, "Bills");
-                updateDoc(doc.ref, { paymentStatus: true });
-                await addDoc(billRef, doc.data());
-                await deleteDoc(doc.ref);
->>>>>>> develop
+              const app = initializeApp(firebaseConfig);
+              const db = getFirestore(app);
+              await runTransaction(db, async () => {
+                const orderDetailsRef = collection(db, "OrderDetails");
+                const querySnapshot = await getDocs(
+                  query(
+                    orderDetailsRef,
+                    where("tableId", "==", selectedTableId)
+                  )
+                );
+                querySnapshot.forEach(async (doc) => {
+                  const billRef = collection(db, "Bills");
+                  const orderDetailData = doc.data();
+                  await addDoc(billRef, {
+                    ...orderDetailData,
+                    paymentStatus: true,
+                  });
+                  await deleteDoc(doc.ref);
+                });
               });
-              await updateDoc(doc.ref, { paymentStatus: true });
-            });
-            window.location.reload();
-          } catch (error) {
-            console.error("Error updating payment status: ", error);
-          }
-        },
-      },
-      {
-        label: "Hủy",
-        onClick: () => {
-          // Hủy bỏ xác nhận thanh toán
-        },
-      },
-    ],
-  });
-};
 
+              window.location.reload();
+            } catch (error) {
+              console.error("Error updating payment status: ", error);
+            }
+          },
+        },
+        {
+          label: "Hủy",
+          onClick: () => {
+            // Hủy bỏ xác nhận thanh toán
+          },
+        },
+      ],
+    });
+  };
 
   const typeMapping = {
     All: "Tất cả",

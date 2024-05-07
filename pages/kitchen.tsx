@@ -64,6 +64,11 @@ const ManageTable = () => {
     },
   }));
 
+  // Sắp xếp orderDetails theo ngày từ cũ nhất đến mới nhất
+  const sortedOrderDetails = [...orderDetails].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
   return (
     <>
       <TabContext value={value.toString()}>
@@ -104,13 +109,14 @@ const ManageTable = () => {
           </Typography>
           <Box>
             <Grid container spacing={2} justifyContent="center">
-              {orderDetails.map((orderDetail, orderIndex) => (
+              {sortedOrderDetails.map((orderDetail, orderIndex) => (
                 <Grid key={orderIndex} item style={{ width: "600px" }}>
                   <Box>
                     <Typography
                       variant="h6"
                       sx={{ marginBottom: "10px" }}
                     >{`OrderDetail #${orderIndex + 1}`}</Typography>
+                    <Typography variant="subtitle1">{`Ngày: ${orderDetail.date}`}</Typography>
                     <Table>
                       <Box
                         style={{

@@ -70,8 +70,12 @@ const Home = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
   const tableId = router.query.tableId as string;
-<<<<<<< HEAD
-=======
+  const uniqueTypes = Array.from(new Set(menus.map((menu) => menu.type)));
+  const sortedMenusByType: (Menu[] | undefined)[] = uniqueTypes.map((type) => {
+    return menus.filter(
+      (menu) => menu.price !== 0 && menu.show === true && menu.type === type
+    );
+  });
 
   const typeMapping = {
     All: "Tất cả",
@@ -85,10 +89,10 @@ const Home = () => {
     Combo: "Combo Nướng & Lẩu",
     Sausace: "Sốt",
   };
+
   const getTypeName = (type: keyof typeof typeMapping) =>
     typeMapping[type] || type;
 
->>>>>>> develop
   const handleViewCart = () => {
     router.push(`/cus_service/cart?items&tableId=${router.query.tableId}`);
   };
@@ -151,24 +155,14 @@ const Home = () => {
         console.error("Error fetching data: ", error);
       }
     };
-<<<<<<< HEAD
-    fetchData();  
-=======
     fetchData();
->>>>>>> develop
     // const interval = setInterval(() => {
     //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 20000);
+    // }, 3000);
 
-<<<<<<< HEAD
-    return () => {
-      // clearInterval(interval); // Xóa interval khi component bị unmount
-    };
-=======
     // return () => {
     //   clearInterval(interval); // Xóa interval khi component bị unmount
     // };
->>>>>>> develop
   }, []); // Dùng mảng dependency rỗng để chỉ gọi useEffect một lần sau khi component được render
   useEffect(() => {
     const storedCartItems = localStorage.getItem("cartItems");

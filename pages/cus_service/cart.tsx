@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
 import {
   addDoc,
   collection,
@@ -21,15 +21,24 @@ import {
 const Cart = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const firebaseConfig = {
-    apiKey: "AIzaSyAvG04eeCLcb6VBF7F61x7H-3zyTTBQfjM",
-    authDomain: "tableorderservice.firebaseapp.com",
-    projectId: "tableorderservice",
-    storageBucket: "tableorderservice.appspot.com",
-    messagingSenderId: "789767582873",
-    appId: "1:789767582873:web:c0cc47801fff8ba1b8f408",
-    measurementId: "G-25TT028B48",
+    apiKey: "AIzaSyAKE4ePUsVfXd8Nh7Bj9msbroBd_7tvbzg",
+    authDomain: "tableorder-90826.firebaseapp.com",
+    projectId: "tableorder-90826",
+    storageBucket: "tableorder-90826.appspot.com",
+    messagingSenderId: "723306684078",
+    appId: "1:723306684078:web:ca7f0fcc45dbc2ec02173f",
+    measurementId: "G-QSTWZS9F78",
   };
-  const app = initializeApp(firebaseConfig);
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
+
+  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   const firestore = getFirestore(app);
   const router = useRouter();
   const [note, setNote] = useState(""); // State để lưu trữ giá trị ghi chú
@@ -113,10 +122,10 @@ const Cart = () => {
       })
     );
 
-    //Hàm kiểm tra id món có tồn tại trong Menus hay không
-
     // Loại bỏ các sản phẩm không hợp lệ khỏi danh sách
-    const validProducts = updatedProducts.filter((product) => product.show);
+    const validProducts = updatedProducts.filter(
+      (product) => product.show && product.id
+    );
 
     // Cập nhật trạng thái show trong localStorage
     localStorage.setItem("cartItems", JSON.stringify(validProducts));
@@ -361,7 +370,7 @@ const Cart = () => {
           <Button
             variant="contained"
             style={{ width: "100%", background: "#ffffff", color: "gray" }}
-            onClick={handleExit}
+            onClick={BackMenu}
           >
             Thoát
           </Button>
