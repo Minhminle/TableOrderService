@@ -70,6 +70,12 @@ const Home = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const router = useRouter();
   const tableId = router.query.tableId as string;
+  const uniqueTypes = Array.from(new Set(menus.map((menu) => menu.type)));
+  const sortedMenusByType: (Menu[] | undefined)[] = uniqueTypes.map((type) => {
+    return menus.filter(
+      (menu) => menu.price !== 0 && menu.show === true && menu.type === type
+    );
+  });
 
   const typeMapping = {
     All: "Tất cả",
@@ -83,6 +89,7 @@ const Home = () => {
     Combo: "Combo Nướng & Lẩu",
     Sausace: "Sốt",
   };
+
   const getTypeName = (type: keyof typeof typeMapping) =>
     typeMapping[type] || type;
 
@@ -151,7 +158,7 @@ const Home = () => {
     fetchData();
     // const interval = setInterval(() => {
     //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 20000);
+    // }, 3000);
 
     // return () => {
     //   clearInterval(interval); // Xóa interval khi component bị unmount
@@ -397,6 +404,141 @@ const Home = () => {
 
         {showMenu && (
           <Box sx={{ p: "16px 10px 16px 10px" }}>
+            {/* Hiển thị thể loại "Combo" */}
+            {sortedMenusByType.map((typeMenus, index) => {
+              if (typeMenus && typeMenus[0]?.type === "Combo") {
+                return (
+                  <React.Fragment key={index}>
+                    <Grid container spacing={2}>
+                      {typeMenus
+                        .filter(
+                          (menu) => menu.show === true && menu.price !== 0
+                        )
+                        .map((menu, menuIndex) => (
+                          <Grid
+                            item
+                            xs={6}
+                            key={menuIndex}
+                            onClick={() => handleAddToCart(menu.id)}
+                          >
+                            <ListItem
+                              sx={{
+                                justifyContent: "flex",
+                                flexDirection: "column",
+                                background: "white",
+                                borderRadius: "16px",
+                                height: "260px",
+                                border: selectedItems.includes(menu.id)
+                                  ? "2px solid red"
+                                  : "none",
+                              }}
+                            >
+                              <Stack
+                                direction="column"
+                                alignItems="center"
+                                sx={{ pt: "20px" }}
+                              >
+                                <Box
+                                  component="img"
+                                  alt={menu.name}
+                                  src={menu.path}
+                                  sx={{
+                                    maxWidth: "120px",
+                                    maxHeight: "120px",
+                                    pb: "10px",
+                                    borderRadius: "16px",
+                                  }}
+                                />
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.name}
+                                </Typography>
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.price.toLocaleString("vi-VN")}VNĐ
+                                </Typography>
+                              </Stack>
+                            </ListItem>
+                          </Grid>
+                        ))}
+                    </Grid>
+                    {index !== sortedMenusByType.length - 1 && (
+                      <Box sx={{ height: "40px" }} />
+                    )}
+                  </React.Fragment>
+                );
+              } else {
+                return null;
+              }
+            })}
+            {/* Hiển thị các thể loại khác */}
+            {sortedMenusByType.map((typeMenus, index) => {
+              if (typeMenus && typeMenus[0]?.type !== "Combo") {
+                return (
+                  <React.Fragment key={index}>
+                    <Grid container spacing={2}>
+                      {typeMenus
+                        .filter(
+                          (menu) => menu.show === true && menu.price !== 0
+                        )
+                        .map((menu, menuIndex) => (
+                          <Grid
+                            item
+                            xs={6}
+                            key={menuIndex}
+                            onClick={() => handleAddToCart(menu.id)}
+                          >
+                            <ListItem
+                              sx={{
+                                justifyContent: "flex",
+                                flexDirection: "column",
+                                background: "white",
+                                borderRadius: "16px",
+                                height: "260px",
+                                border: selectedItems.includes(menu.id)
+                                  ? "2px solid red"
+                                  : "none",
+                              }}
+                            >
+                              <Stack
+                                direction="column"
+                                alignItems="center"
+                                sx={{ pt: "20px" }}
+                              >
+                                <Box
+                                  component="img"
+                                  alt={menu.name}
+                                  src={menu.path}
+                                  sx={{
+                                    maxWidth: "120px",
+                                    maxHeight: "120px",
+                                    pb: "10px",
+                                    borderRadius: "16px",
+                                  }}
+                                />
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.name}
+                                </Typography>
+                                <Typography sx={{ fontWeight: 700 }}>
+                                  {menu.price.toLocaleString("vi-VN")}VNĐ
+                                </Typography>
+                              </Stack>
+                            </ListItem>
+                          </Grid>
+                        ))}
+                    </Grid>
+                    {index !== sortedMenusByType.length - 1 && (
+                      <Box sx={{ height: "30px" }} />
+                    )}
+                  </React.Fragment>
+                );
+              } else {
+                return null;
+              }
+            })}
+          </Box>
+        )}
+
+        {/* {showMenu && (
+          <Box sx={{ p: "16px 10px 16px 10px" }}>
             <Grid container spacing={2}>
               {menus
                 .filter((menu) => menu.price !== 0 && menu.show === true)
@@ -449,7 +591,7 @@ const Home = () => {
                 ))}
             </Grid>
           </Box>
-        )}
+        )} */}
 
         {/* Nutmuahang */}
         <Box sx={{ position: "fixed", bottom: "30px", right: "15px" }}>
