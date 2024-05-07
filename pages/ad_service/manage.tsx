@@ -38,6 +38,7 @@ import {
   updateDoc,
   writeBatch,
   WriteBatch,
+  getDoc,
   setDoc,
   runTransaction,
 } from "firebase/firestore";
@@ -89,13 +90,21 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
+
   const handlePaymentConfirmation = async (
     tableId: string,
     totalPayment: number
   ) => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Truy vấn để lấy tên của bàn từ ID
+    const tableRef = doc(db, "Tables", tableId);
+    const tableDoc = await getDoc(tableRef);
+    const tableName = tableDoc.data()?.table_number || "Bàn không xác định";
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
-      message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
+      message: `Xác nhận thanh toán cho bàn số ${tableName} với tổng tiền là ${totalPayment.toLocaleString(
         "vi-VN"
       )} VNĐ?`,
       buttons: [
@@ -108,10 +117,7 @@ const ManageTable = () => {
               await runTransaction(db, async () => {
                 const orderDetailsRef = collection(db, "OrderDetails");
                 const querySnapshot = await getDocs(
-                  query(
-                    orderDetailsRef,
-                    where("tableId", "==", selectedTableId)
-                  )
+                  query(orderDetailsRef, where("tableId", "==", tableId))
                 );
                 querySnapshot.forEach(async (doc) => {
                   const billRef = collection(db, "Bills");
