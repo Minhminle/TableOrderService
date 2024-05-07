@@ -55,7 +55,9 @@ import { Console } from "console";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { green } from "@mui/material/colors";
-
+import { BillDetails, BillItem } from "@/models/Bill";
+import bills from "./bills";
+import FirebaseDataComponent from "./bills";
 const ManageTable = () => {
   const tables = useFetchTables();
 
@@ -89,6 +91,7 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
+
   const handlePaymentConfirmation = async (
     tableId: string,
     totalPayment: number
@@ -405,6 +408,7 @@ const ManageTable = () => {
   const totalPayment = orderDetails.reduce((total, orderDetail) => {
     return total + orderDetail.totalPrice;
   }, 0);
+
   return (
     <>
       <TabContext value={value.toString()}>
@@ -425,6 +429,7 @@ const ManageTable = () => {
               >
                 <Tab label={`Danh Sách Bàn`} value="1" />
                 <Tab label={`Danh Sách Menu`} value="2" />
+                <Tab label={`Bill`} value="3" />
               </TabList>
             </Box>
           </TabContext>
@@ -848,6 +853,9 @@ const ManageTable = () => {
             </Box>
           </Stack>
         </TabPanel>
+        <TabPanel value="3">
+          <FirebaseDataComponent></FirebaseDataComponent>
+        </TabPanel>
       </TabContext>
     </>
   );
@@ -855,5 +863,8 @@ const ManageTable = () => {
 
 export default ManageTable;
 function commitBatch(batch: WriteBatch) {
+  throw new Error("Function not implemented.");
+}
+function convertDateFormat(date: any): string | number | Date {
   throw new Error("Function not implemented.");
 }
