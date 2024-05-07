@@ -56,6 +56,7 @@ import { Console } from "console";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { green } from "@mui/material/colors";
+import BillDisplay from "./bills";
 
 const ManageTable = () => {
   const tables = useFetchTables();
@@ -431,6 +432,7 @@ const ManageTable = () => {
               >
                 <Tab label={`Danh Sách Bàn`} value="1" />
                 <Tab label={`Danh Sách Menu`} value="2" />
+                <Tab label={`Quản Lý Hóa Đơn`} value="3" />
               </TabList>
             </Box>
           </TabContext>
@@ -853,6 +855,9 @@ const ManageTable = () => {
               </Stack>
             </Box>
           </Stack>
+        </TabPanel>
+        <TabPanel value="3">
+          <BillDisplay></BillDisplay>
         </TabPanel>
       </TabContext>
     </>
