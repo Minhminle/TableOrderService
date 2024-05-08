@@ -14,7 +14,9 @@
     "@mui/icons-material": "^5.15.14",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.14",
+    "bcryptjs": "^2.4.3",
     "firebase": "^10.9.0",
+    "js-cookie": "^3.0.5",
     "next": "14.1.2",
     "react": "^18.2.0",
     "react-confirm-alert": "^3.0.6",
@@ -23,6 +25,8 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

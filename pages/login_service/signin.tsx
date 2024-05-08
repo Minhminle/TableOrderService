@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { hash } from "bcryptjs";
-import { useRouter } from "next/router";
 import { firebaseConfig } from "@/models/Config";
 import { initializeApp } from "firebase/app";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 const Signin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

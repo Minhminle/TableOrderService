@@ -4,12 +4,16 @@ import { collection, getDocs, getFirestore } from "firebase/firestore";
 import useSWR from 'swr';
 
 export class Login {
+  id:string ;
   username: string;
   password: string;
   constructor(
+    id:string ,
     username: string,
     password: string,
+
   ) {
+    this.id=id;
     this.username = username;
     this.password = password;
   }
@@ -23,10 +27,11 @@ export function useFetchLogin() {
     const loginSnapshot = await getDocs(loginCollection);
     const loginList = loginSnapshot.docs.map((doc) => {
       const data = doc.data();
-      return {
-        username: data.username,
-        password: data.password,
-      };
+      return new Login (
+        data.id,
+        data.username,
+        data.password,
+    );
     });
     return loginList;
   };

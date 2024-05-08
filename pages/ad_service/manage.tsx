@@ -122,7 +122,6 @@ const ManageTable = () => {
                   });
                   await deleteDoc(doc.ref);
                 });
->>>>>>> develop
               });
 
               window.location.reload();

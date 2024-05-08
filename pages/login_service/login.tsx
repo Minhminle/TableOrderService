@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useFetchLogin } from "@/models/Login";
 import router from "next/router";
 import { compare } from "bcryptjs";
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -10,7 +11,8 @@ const Login = () => {
   const { logins } = useFetchLogin();
 
   const handleLogin = async () => {
-    const user = logins.find((login) => login.username === username);
+    const user = logins?.find((login) => login.username === username);
+    console.log(logins?.find((a)=>a.password))  
     if (user) {
       const isPasswordMatch = await compare(password, user.password);
       if (isPasswordMatch) {
@@ -26,9 +28,9 @@ const Login = () => {
   const clicktoSignin = () => {
     router.push("/login_service/signin");
   };
-  const clicktoChangepassword =()=>{
-    router.push("/login_service/acount_edit")
-  }
+  const clicktoChangepassword = () => {
+    router.push("/login_service/acount_edit");
+  };
 
   return (
     <>
@@ -59,7 +61,7 @@ const Login = () => {
               "&:hover": {
                 color: "blue",
                 cursor: "pointer",
-              },  
+              },
             }}
             onClick={clicktoChangepassword}
           >

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { getFirestore, collection, updateDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { hash } from "bcryptjs";
-import { useRouter } from "next/router";
 import { firebaseConfig } from "@/models/Config";
 import { initializeApp } from "firebase/app";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { compare } from "bcryptjs";
+import { useRouter } from "next/navigation";
 
 const acount_edit = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
