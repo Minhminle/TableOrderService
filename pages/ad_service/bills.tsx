@@ -1,124 +1,210 @@
-import { useEffect, useState } from "react";
-import { initializeApp, getApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import {
+  TextField,
+  Grid,
+  Button,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
+import { DateRange } from "@mui/lab";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import {
+  DateRange as DateRangeIcon,
+  FilterAltOff as FilterAltOffIcon,
+} from "@mui/icons-material";
+import { useFetchBills } from "@/models/Bill";
+import { BillDetails } from "@/models/Bill";
+import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "@/models/Config";
-import { BillDetails, BillItem } from "@/models/Bill";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
-// // Khởi tạo Firebase App
-// const firebaseApp = initializeApp(firebaseConfig);
+const BillDisplay: React.FC = () => {
+  const { bills, noDataMessage } = useFetchBills();
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
+  const [filteredBills, setFilteredBills] = useState<BillDetails[]>([]);
+  const [filterMessage, setFilterMessage] = useState<string>("");
+  const [displayedBills, setDisplayedBills] = useState<BillDetails[]>([]);
 
-// // Lấy đối tượng Firestore
-// const firestore = getFirestore(firebaseApp);
-function convertDateFormat(dateString: string) {
-  // Phân tách ngày giờ thành các phần
-  const parts = dateString.split(" ");
-  const datePart = parts[0];
-  const timePart = parts[1];
-
-  // Phân tách ngày thành ngày, tháng và năm
-  const dateParts = datePart.split("/");
-  const day = dateParts[0];
-  const month = dateParts[1];
-  const year = dateParts[2];
-
-  // Phân tách giờ, phút và giây
-  const timeParts = timePart.split(":");
-  const hour = timeParts[0];
-  const minute = timeParts[1];
-  const second = timeParts[2];
-
-  // Kết hợp lại thành định dạng "MM/DD/YYYY HH:MM:SS"
-  const formattedDate = `${month}/${day}/${year} ${hour}:${minute}:${second}`;
-
-  return new Date(formattedDate); // Trả về một đối tượng Date mới
-}
-
-// Component React để lấy dữ liệu từ Firestore
-function FirebaseDataComponent() {
-  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
-  let app;
-  try {
-    app = getApp();
-  } catch (error) {
-    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-    app = initializeApp(firebaseConfig);
-  }
-
-  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
-  const db = getFirestore(app);
-  const [bills, setBills] = useState<BillDetails[]>([]);
+  const findTableById = async (tableId: string) => {
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const tableRef = doc(db, "Tables", tableId);
+      const tableDoc = await getDoc(tableRef);
+      const tableName = tableDoc.data()?.name || "Bàn không xác định";
+      return tableName;
+    } catch (error) {
+      console.error("Error fetching table name: ", error);
+      return "Bàn không xác định";
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const billDetailsCollection = collection(db, "Bills"); // Thay "billDetails" bằng tên của collection trên Firestore của bạn
-        const snapshot = await getDocs(billDetailsCollection);
+    // Ban đầu, hiển thị tất cả các hóa đơn từ mới nhất đến cũ nhất
+    setDisplayedBills([...bills].reverse());
+  }, [bills]);
 
-        const billsData: BillDetails[] = [];
+  const handleStartDateChange = (date: Date | null) => {
+    setSelectedStartDate(date);
+  };
 
-        snapshot.forEach((doc) => {
-          const billData = doc.data();
-          const { id, items, date, paymentStatus, totalPrice } = billData;
+  const handleEndDateChange = (date: Date | null) => {
+    setSelectedEndDate(date);
+  };
 
-          // Chuyển đổi dữ liệu từ Firestore thành đối tượng BillDetails
-          const billItems: BillItem[] = items.map((item: any) => {
-            return new BillItem(
-              item.menu_id,
-              item.bill_price,
-              item.quantity,
-              item.note,
-              item.itemstatus
-            );
-          });
-
-          const billDetails = new BillDetails(
-            id,
-            billItems,
-            new Date(convertDateFormat(date)), // Chuyển đổi ngày từ dạng string sang Date
-            paymentStatus,
-            totalPrice
-          );
-
-          billsData.push(billDetails);
-        });
-
-        setBills(billsData);
-      } catch (error) {
-        console.error("Error fetching bills: ", error);
+  const handleFilterButtonClick = () => {
+    if (selectedStartDate && selectedEndDate) {
+      // Kiểm tra nếu ngày bắt đầu lớn hơn ngày kết thúc
+      if (selectedStartDate > selectedEndDate) {
+        alert(
+          "Thời gian không hợp lệ: Ngày bắt đầu phải nhỏ hơn ngày kết thúc"
+        );
+        return;
       }
-    };
 
-    fetchData();
-    // const interval = setInterval(() => {
-    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
-    // }, 3000);
+      const filtered = bills.filter((bill) => {
+        // Chuyển đổi chuỗi ngày trong bill.date thành đối tượng Date
+        const billDate = new Date(bill.date);
 
-    // return () => {
-    //   clearInterval(interval); // Xóa interval khi component bị unmount
-    // };
-  }, []);
+        // Kiểm tra xem ngày trong bill có nằm trong khoảng từ start đến end không
+        return billDate >= selectedStartDate && billDate <= selectedEndDate;
+      });
+
+      setFilteredBills(filtered);
+      setFilterMessage(
+        `Danh sách hóa đơn từ ngày ${selectedStartDate.toLocaleDateString()} đến ngày ${selectedEndDate.toLocaleDateString()}`
+      );
+      setDisplayedBills(filtered);
+    } else {
+      // Nếu không có ngày nào được chọn, hiển thị tất cả các hóa đơn
+      setFilteredBills([]);
+      setFilterMessage("");
+      setDisplayedBills([...bills].reverse());
+    }
+  };
+
+  const handleClearFilterButtonClick = () => {
+    // Xóa bộ lọc và hiển thị lại tất cả các hóa đơn
+    setSelectedStartDate(null);
+    setSelectedEndDate(null);
+    setFilteredBills([]);
+    setFilterMessage("");
+    setDisplayedBills([...bills].reverse());
+  };
+
+  const handleViewDetail = (bill: BillDetails) => {
+    let detailMessage = `Date: ${bill.date.toLocaleString()}\n`;
+    detailMessage += `Tổng tiền: ${bill.totalPrice}\n`;
+    detailMessage += `Trạng thái: ${
+      bill.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán"
+    }\n`;
+    detailMessage += "Chi tiết đơn hàng:\n";
+    bill.items.forEach((item, index) => {
+      detailMessage += `${index + 1}. ${item.quantity} x ${item.menu_name} - ${
+        item.orderdetails_price
+      }\n`;
+    });
+    const confirmResult = window.confirm(detailMessage);
+    if (confirmResult) {
+      // Thực hiện các hành động khi xác nhận
+    } else {
+      // Thực hiện các hành động khi hủy
+    }
+  };
+
+  if (noDataMessage) {
+    return <Typography>{noDataMessage}</Typography>;
+  }
 
   return (
-    <div>
-      <h2>Bill Details</h2>
-      <ul>
-        {bills.map((bill) => (
-          <li key={bill.id}>
-            <p>Date: {bill.date.toDateString()}</p>
-            <p>Total Price: {bill.totalPrice}</p>
-            <p>Payment Status: {bill.paymentStatus ? "Paid" : "Not Paid"}</p>
-            <ul>
-              {bill.items.map((item, index) => (
-                <li key={index}>
-                  {item.quantity} x {item.menu_id} - {item.bill_price}
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+    <>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item>
+          <TextField
+            id="startDate"
+            label="Start Date"
+            type="date"
+            value={
+              selectedStartDate
+                ? selectedStartDate.toISOString().split("T")[0]
+                : ""
+            }
+            onChange={(e) => handleStartDateChange(new Date(e.target.value))}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item>
+          <TextField
+            id="endDate"
+            label="End Date"
+            type="date"
+            value={
+              selectedEndDate ? selectedEndDate.toISOString().split("T")[0] : ""
+            }
+            onChange={(e) => handleEndDateChange(new Date(e.target.value))}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<DateRangeIcon />}
+            onClick={handleFilterButtonClick}
+          >
+            Lọc
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<FilterAltOffIcon />}
+            onClick={handleClearFilterButtonClick}
+          >
+            Hủy Lọc
+          </Button>
+        </Grid>
+      </Grid>
 
-export default FirebaseDataComponent;
+      <Typography variant="h4">{filterMessage}</Typography>
+      <List>
+        {displayedBills
+          .sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
+          .map((bill: BillDetails) => (
+            <ListItem key={bill.id}>
+              <ListItemText
+                primary={`${bill.date.toLocaleString()}`}
+                secondary={`Tổng tiền: ${bill.totalPrice} VNĐ, Trạng thái: ${
+                  bill.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán"
+                }`}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleViewDetail(bill)}
+              >
+                Xem chi tiết
+              </Button>
+              {/* <List>
+                {bill.items.map((item, index) => (
+                  <ListItem key={index}>
+                    <ListItemText
+                      primary={`${item.quantity} x ${item.menu_name} - ${item.orderdetails_price}`}
+                    />
+                  </ListItem>
+                ))}
+              </List> */}
+            </ListItem>
+          ))}
+      </List>
+    </>
+  );
+};
+
+export default BillDisplay;

@@ -38,6 +38,7 @@ import {
   updateDoc,
   writeBatch,
   WriteBatch,
+  getDoc,
   setDoc,
   runTransaction,
 } from "firebase/firestore";
@@ -55,6 +56,7 @@ import { Console } from "console";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { green } from "@mui/material/colors";
+import BillDisplay from "./bills";
 
 const ManageTable = () => {
   const tables = useFetchTables();
@@ -89,13 +91,21 @@ const ManageTable = () => {
 
   const [menuTypes, setMenuTypes] = useState<string[]>([]); // State để lưu trữ danh sách thể loại // State để lưu trữ thông tin món đang được chỉnh sửa
   const [editMenu, setEditMenu] = useState<Menu | null>(null); // State để lưu trữ thông tin món đang được chỉnh sửa async
+
   const handlePaymentConfirmation = async (
     tableId: string,
     totalPayment: number
   ) => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Truy vấn để lấy tên của bàn từ ID
+    const tableRef = doc(db, "Tables", tableId);
+    const tableDoc = await getDoc(tableRef);
+    const tableName = tableDoc.data()?.table_number || "Bàn không xác định";
     confirmAlert({
       title: "Xác Nhận Thanh Toán",
-      message: `Xác nhận thanh toán cho bàn số ${tableId} với tổng tiền là ${totalPayment.toLocaleString(
+      message: `Xác nhận thanh toán cho bàn số ${tableName} với tổng tiền là ${totalPayment.toLocaleString(
         "vi-VN"
       )} VNĐ?`,
       buttons: [
@@ -108,10 +118,7 @@ const ManageTable = () => {
               await runTransaction(db, async () => {
                 const orderDetailsRef = collection(db, "OrderDetails");
                 const querySnapshot = await getDocs(
-                  query(
-                    orderDetailsRef,
-                    where("tableId", "==", selectedTableId)
-                  )
+                  query(orderDetailsRef, where("tableId", "==", tableId))
                 );
                 querySnapshot.forEach(async (doc) => {
                   const billRef = collection(db, "Bills");
@@ -425,6 +432,7 @@ const ManageTable = () => {
               >
                 <Tab label={`Danh Sách Bàn`} value="1" />
                 <Tab label={`Danh Sách Menu`} value="2" />
+                <Tab label={`Quản Lý Hóa Đơn`} value="3" />
               </TabList>
             </Box>
           </TabContext>
@@ -473,12 +481,12 @@ const ManageTable = () => {
                   {orderDetails.map((orderDetail, orderIndex) => (
                     <div key={orderIndex}>
                       {/* Hiển thị ID của OrderDetails */}
-                      <Typography variant="subtitle1">
+                      {/* <Typography variant="subtitle1">
                         ID:{" "}
                         {Array.isArray(orderDetail.id)
                           ? orderDetail.id.join(" - ")
                           : orderDetail.id}
-                      </Typography>
+                      </Typography> */}
                       {/* Lặp qua từng mục trong orderDetail.items */}
                       {orderDetail.items.map((item, index) => (
                         <div key={index}>
@@ -497,7 +505,7 @@ const ManageTable = () => {
                             </Grid>
                             <Grid item xs={2}>
                               <Typography variant="subtitle1">
-                                {item.orderdetails_price}
+                                {item.orderdetails_price.toLocaleString('vi-VN')}
                               </Typography>
                             </Grid>
                             <Grid item xs={3}>
@@ -536,7 +544,7 @@ const ManageTable = () => {
                 }}
               >
                 <Stack direction="row" spacing={3}>
-                  <Typography>Tổng tiền:{`${totalPayment}`}</Typography>
+                  <Typography>Tổng tiền:{`${totalPayment.toLocaleString('vi-VN')}VND`}</Typography>
                 </Stack>
                 <Stack direction="row" spacing={2}>
                   <Button
@@ -847,6 +855,9 @@ const ManageTable = () => {
               </Stack>
             </Box>
           </Stack>
+        </TabPanel>
+        <TabPanel value="3">
+          <BillDisplay></BillDisplay>
         </TabPanel>
       </TabContext>
     </>
