@@ -102,6 +102,7 @@ export function useFetchOrderDetails(tableId: string) {
           )
         );
       });
+      setOrderDetails(updatedOrderDetailsList);
     });
 
     return () => unsubscribe();
