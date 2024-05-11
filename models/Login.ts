@@ -17,15 +17,15 @@ export class Login {
 export function useFetchLogin() {
   const [logins, setLogins] = useState<Login[]>([]);
   useEffect(() => {
-    let app;
-    try {
-      app = getApp();
-    } catch (error) {
-      app = initializeApp(firebaseConfig);
-    }
-    const db = getFirestore(app);
-    // const app = initializeApp(firebaseConfig);
+    // let app;
+    // try {
+    //   app = getApp();
+    // } catch (error) {
+    //   app = initializeApp(firebaseConfig);
+    // }
     // const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const fetchData = async () => {
       try {
         const loginCollection = collection(db, "Login");

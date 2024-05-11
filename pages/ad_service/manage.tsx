@@ -67,13 +67,14 @@ const ManageTable = () => {
   const fetchedMenus = useFetchMenus();
 
   // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
-  let app;
-  try {
-    app = getApp();
-  } catch (error) {
-    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-    app = initializeApp(firebaseConfig);
-  }
+  // let app;
+  // try {
+  //   app = getApp();
+  // } catch (error) {
+  //   // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+  //   app = initializeApp(firebaseConfig);
+  // }
+  const app = initializeApp(firebaseConfig);
 
   // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   const firestore = getFirestore(app);
