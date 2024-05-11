@@ -67,14 +67,17 @@ export function useFetchBills() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let app;
-        try {
-          app = getApp();
-        } catch (error) {
-          // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-          app = initializeApp(firebaseConfig);
-        }
+        // let app;
+        // try {
+        //   app = getApp();
+        // } catch (error) {
+        //   // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+        //   app = initializeApp(firebaseConfig);
+        // }
+        // const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
         const billDetailsCollection = collection(db, "Bills");
         const querySnapshot = await getDocs(billDetailsCollection);
 
