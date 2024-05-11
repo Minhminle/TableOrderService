@@ -463,11 +463,11 @@ const Home = () => {
         {/* Nutmuahang */}
         <Box sx={{ position: "fixed", bottom: "30px", right: "15px" }}>
           <Button sx={{ borderRadius: "100%" }} onClick={handleViewCart}>
-            <img
-              width="50"
-              height="50"
+            <Image
               src="https://img.icons8.com/fluency/48/shopping-cart.png"
               alt="shopping-cart"
+              width={50}
+              height={50}
             />
           </Button>
           <Box
