@@ -4,30 +4,27 @@ import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export class Login {
-  id:string ;
+  id: string;
   username: string;
   password: string;
-  constructor(
-    id:string ,
-    username: string,
-    password: string,
-
-  ) {
-    this.id=id;
+  constructor(id: string, username: string, password: string) {
+    this.id = id;
     this.username = username;
     this.password = password;
   }
 }
 
 export function useFetchLogin() {
-  const [logins,setLogins]= useState<Login[]>([])
+  const [logins, setLogins] = useState<Login[]>([]);
   useEffect(() => {
-    let app;
-    try {
-      app = getApp();
-    } catch (error) {
-      app = initializeApp(firebaseConfig);
-    }
+    // let app;
+    // try {
+    //   app = getApp();
+    // } catch (error) {
+    //   app = initializeApp(firebaseConfig);
+    // }
+    // const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const fetchData = async () => {
       try {
@@ -35,12 +32,7 @@ export function useFetchLogin() {
         const loginSnapshot = await getDocs(loginCollection);
         const loginList = loginSnapshot.docs.map((doc) => {
           const data = doc.data();
-          return new Login(
-            doc.id,
-            data.username,
-            data.password,
-            
-          );
+          return new Login(doc.id, data.username, data.password);
         });
         setLogins(loginList);
       } catch (error) {
@@ -57,8 +49,5 @@ export function useFetchLogin() {
     // };
   }, []);
 
-
-  return logins
-    
- 
+  return logins;
 }

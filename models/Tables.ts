@@ -28,15 +28,17 @@ export function useFetchTables() {
   const [tables, setTables] = useState<Table[]>([]);
 
   useEffect(() => {
-    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
-    let app;
-    try {
-      app = getApp();
-    } catch (error) {
-      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-      app = initializeApp(firebaseConfig);
-    }
-    // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+    // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    // let app;
+    // try {
+    //   app = getApp();
+    // } catch (error) {
+    //   // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    //   app = initializeApp(firebaseConfig);
+    // }
+    // // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+    // const firestore = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
     const firestore = getFirestore(app);
 
     const db = getFirestore(app);

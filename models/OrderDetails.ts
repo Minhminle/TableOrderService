@@ -67,12 +67,14 @@ export function useFetchOrderDetails(tableId: string) {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    let app;
-    try {
-      app = getApp();
-    } catch (error) {
-      app = initializeApp(firebaseConfig);
-    }
+    // let app;
+    // try {
+    //   app = getApp();
+    // } catch (error) {
+    //   app = initializeApp(firebaseConfig);
+    // }
+    // const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const orderDetailsCollection = collection(db, "OrderDetails");
@@ -115,14 +117,16 @@ export function useFetchOrderHandle() {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
-    let app;
-    try {
-      app = getApp();
-    } catch (error) {
-      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-      app = initializeApp(firebaseConfig);
-    }
+    // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    // let app;
+    // try {
+    //   app = getApp();
+    // } catch (error) {
+    //   // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    //   app = initializeApp(firebaseConfig);
+    // }
+    // const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     const fetchData = async () => {
