@@ -102,13 +102,13 @@ const Home = () => {
       setCartItems(JSON.parse(storedCartItems));
     }
   }, []);
-  const handleTypeClick = (type:string) => {
+  const handleTypeClick = (type: string) => {
     setShowTypeList(!showTypeList);
     setShowMenu(false);
     sethSowMenuDetail(false);
     if (!selectedType) {
-    setSelectedType(type);
-  }
+      setSelectedType(type);
+    }
   };
   const handleAllClick = () => {
     setShowMenu(true);
@@ -122,7 +122,6 @@ const Home = () => {
     setShowTypeList(false);
     sethSowMenuDetail(true);
     setSelectedType(type);
-    
   };
 
   useEffect(() => {
@@ -314,13 +313,11 @@ const Home = () => {
                             background: "white",
                             borderRadius: "16px ",
                           }}
-                         onClick={
-  type === selectedType
-    ? handleAllClick
-    : () => handleTypeDetailClick(type)
-}
-
-
+                          onClick={
+                            type === selectedType
+                              ? handleAllClick
+                              : () => handleTypeDetailClick(type)
+                          }
                         >
                           <Stack
                             display="flex"

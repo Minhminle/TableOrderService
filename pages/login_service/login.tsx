@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useFetchLogin } from "@/models/Login";
 import router from "next/router";
 import { compare } from "bcryptjs";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -11,22 +11,21 @@ const Login = () => {
   const logins = useFetchLogin();
 
   const handleLogin = async () => {
-  const user = logins?.find((login) => login.username === username);
-  console.log(password)
-  if (user) {
-    const isPasswordMatch = await compare(password, user.password);
-    if (isPasswordMatch) {
-   
-      Cookies.set('user_id', user.id);
-      Cookies.remove(user.id)
-      router.push("/ad_service/manage");
+    const user = logins?.find((login) => login.username === username);
+    console.log(password);
+    if (user) {
+      const isPasswordMatch = await compare(password, user.password);
+      if (isPasswordMatch) {
+        Cookies.set("user_id", user.id);
+        Cookies.remove(user.id);
+        router.push("/ad_service/manage");
+      } else {
+        alert("Username or password is incorrect");
+      }
     } else {
       alert("Username or password is incorrect");
     }
-  } else {
-    alert("Username or password is incorrect");
-  }
-};
+  };
   const clicktoSignin = () => {
     router.push("/login_service/signin");
   };
@@ -57,7 +56,7 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <Button onClick={handleLogin}>Login</Button>
-          <Typography
+          {/* <Typography
             sx={{
               textAlign: "center",
               "&:hover": {
@@ -80,7 +79,7 @@ const Login = () => {
             onClick={clicktoSignin}
           >
             Sign in
-          </Typography>
+          </Typography> */}
         </Stack>
       </Box>
     </>

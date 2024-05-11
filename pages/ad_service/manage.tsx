@@ -505,7 +505,9 @@ const ManageTable = () => {
                             </Grid>
                             <Grid item xs={2}>
                               <Typography variant="subtitle1">
-                                {item.orderdetails_price.toLocaleString('vi-VN')}
+                                {item.orderdetails_price.toLocaleString(
+                                  "vi-VN"
+                                )}
                               </Typography>
                             </Grid>
                             <Grid item xs={3}>
@@ -544,20 +546,11 @@ const ManageTable = () => {
                 }}
               >
                 <Stack direction="row" spacing={3}>
-                  <Typography>Tổng tiền:{`${totalPayment.toLocaleString('vi-VN')}VND`}</Typography>
+                  <Typography>
+                    Tổng tiền:{`${totalPayment.toLocaleString("vi-VN")}VND`}
+                  </Typography>
                 </Stack>
                 <Stack direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    style={{
-                      height: "50px",
-                      width: "150px",
-                      color: "white",
-                      backgroundColor: "gray",
-                    }}
-                  >
-                    Xác nhận
-                  </Button>
                   <Button
                     variant="contained"
                     style={{
