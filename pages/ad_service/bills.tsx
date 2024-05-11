@@ -4,9 +4,11 @@ import {
   Grid,
   Button,
   Typography,
-  List,
-  ListItem,
-  ListItemText,
+  Table,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow,
 } from "@mui/material";
 import { DateRange } from "@mui/lab";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -103,7 +105,7 @@ const BillDisplay: React.FC = () => {
     }\n`;
     detailMessage += "Chi tiết đơn hàng:\n";
     bill.items.forEach((item, index) => {
-      detailMessage += `${index + 1}. ${item.quantity} x ${item.menu_name} - ${
+      detailMessage += `${index + 1}. ${item.menu_name} x ${item.quantity} - ${
         item.orderdetails_price
       }\n`;
     });
@@ -171,38 +173,45 @@ const BillDisplay: React.FC = () => {
       </Grid>
 
       <Typography variant="h4">{filterMessage}</Typography>
-      <List>
-        {displayedBills
-          .sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-          )
-          .map((bill: BillDetails) => (
-            <ListItem key={bill.id}>
-              <ListItemText
-                primary={`${bill.date.toLocaleString()}`}
-                secondary={`Tổng tiền: ${bill.totalPrice} VNĐ, Trạng thái: ${
-                  bill.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán"
-                }`}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleViewDetail(bill)}
+      <Table sx={{ marginTop: "10px" }}>
+        <TableHead>
+          <TableRow style={{ backgroundColor: "#f2f2f2" }}>
+            <TableCell>Ngày</TableCell>
+            <TableCell>Tổng Tiền</TableCell>
+            <TableCell>Trạng Thái</TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {displayedBills
+            .sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            )
+            .map((bill: BillDetails, index) => (
+              <TableRow
+                key={bill.id}
+                style={{
+                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#f2f2f2",
+                }}
               >
-                Xem chi tiết
-              </Button>
-              {/* <List>
-                {bill.items.map((item, index) => (
-                  <ListItem key={index}>
-                    <ListItemText
-                      primary={`${item.quantity} x ${item.menu_name} - ${item.orderdetails_price}`}
-                    />
-                  </ListItem>
-                ))}
-              </List> */}
-            </ListItem>
-          ))}
-      </List>
+                <TableCell>{bill.date.toLocaleString()}</TableCell>
+                <TableCell>{`${bill.totalPrice} VNĐ`}</TableCell>
+                <TableCell>
+                  {bill.paymentStatus ? "Đã thanh toán" : "Chưa thanh toán"}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleViewDetail(bill)}
+                  >
+                    Xem chi tiết
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+        </TableBody>
+      </Table>
     </>
   );
 };

@@ -29,7 +29,6 @@ export class Menu {
 
 export function useFetchMenus() {
   const [menus, setMenus] = useState<Menu[]>([]);
-
   useEffect(() => {
     // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
     let app;

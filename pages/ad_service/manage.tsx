@@ -481,12 +481,12 @@ const ManageTable = () => {
                   {orderDetails.map((orderDetail, orderIndex) => (
                     <div key={orderIndex}>
                       {/* Hiển thị ID của OrderDetails */}
-                      <Typography variant="subtitle1">
+                      {/* <Typography variant="subtitle1">
                         ID:{" "}
                         {Array.isArray(orderDetail.id)
                           ? orderDetail.id.join(" - ")
                           : orderDetail.id}
-                      </Typography>
+                      </Typography> */}
                       {/* Lặp qua từng mục trong orderDetail.items */}
                       {orderDetail.items.map((item, index) => (
                         <div key={index}>
@@ -505,7 +505,9 @@ const ManageTable = () => {
                             </Grid>
                             <Grid item xs={2}>
                               <Typography variant="subtitle1">
-                                {item.orderdetails_price}
+                                {item.orderdetails_price.toLocaleString(
+                                  "vi-VN"
+                                )}
                               </Typography>
                             </Grid>
                             <Grid item xs={3}>
@@ -544,20 +546,11 @@ const ManageTable = () => {
                 }}
               >
                 <Stack direction="row" spacing={3}>
-                  <Typography>Tổng tiền:{`${totalPayment}`}</Typography>
+                  <Typography>
+                    Tổng tiền:{`${totalPayment.toLocaleString("vi-VN")}VND`}
+                  </Typography>
                 </Stack>
                 <Stack direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    style={{
-                      height: "50px",
-                      width: "150px",
-                      color: "white",
-                      backgroundColor: "gray",
-                    }}
-                  >
-                    Xác nhận
-                  </Button>
                   <Button
                     variant="contained"
                     style={{

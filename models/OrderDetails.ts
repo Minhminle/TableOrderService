@@ -96,15 +96,12 @@ export function useFetchOrderDetails(tableId: string) {
           new OrderDetails(
             id,
             items,
-            new Date(data.orderDate),
+            data.date,
             data.paymentStatus,
             data.totalPrice
           )
         );
       });
-      updatedOrderDetailsList.sort(
-        (a, b) => a.date.getTime() - b.date.getTime()
-      );
       setOrderDetails(updatedOrderDetailsList);
     });
 

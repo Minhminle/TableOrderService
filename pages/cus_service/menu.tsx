@@ -102,11 +102,13 @@ const Home = () => {
       setCartItems(JSON.parse(storedCartItems));
     }
   }, []);
-  const handleTypeClick = () => {
+  const handleTypeClick = (type: string) => {
     setShowTypeList(!showTypeList);
     setShowMenu(false);
     sethSowMenuDetail(false);
-    setSelectedType("All");
+    if (!selectedType) {
+      setSelectedType(type);
+    }
   };
   const handleAllClick = () => {
     setShowMenu(true);
@@ -272,7 +274,7 @@ const Home = () => {
             variant="contained"
             color="error"
             sx={{ borderRadius: 5, minWidth: "150px" }}
-            onClick={() => handleTypeClick()}
+            onClick={() => handleTypeClick("")}
           >
             <Stack
               direction="row"
@@ -312,7 +314,7 @@ const Home = () => {
                             borderRadius: "16px ",
                           }}
                           onClick={
-                            type === "All"
+                            type === selectedType
                               ? handleAllClick
                               : () => handleTypeDetailClick(type)
                           }
