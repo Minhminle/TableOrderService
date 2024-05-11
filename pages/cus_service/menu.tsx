@@ -102,7 +102,7 @@ const Home = () => {
       setCartItems(JSON.parse(storedCartItems));
     }
   }, []);
-  const handleTypeClick = () => {
+  const handleTypeClick = (type:string) => {
     setShowTypeList(!showTypeList);
     setShowMenu(false);
     sethSowMenuDetail(false);
@@ -275,7 +275,7 @@ const Home = () => {
             variant="contained"
             color="error"
             sx={{ borderRadius: 5, minWidth: "150px" }}
-            onClick={() => handleTypeClick()}
+            onClick={() => handleTypeClick("")}
           >
             <Stack
               direction="row"

@@ -1,7 +1,7 @@
-import { initializeApp } from "firebase/app";
+import { getApp, initializeApp } from "firebase/app";
 import { firebaseConfig } from "./Config";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
-import useSWR from 'swr';
+import { useEffect, useState } from "react";
 
 export class Login {
   id:string ;
@@ -20,27 +20,45 @@ export class Login {
 }
 
 export function useFetchLogin() {
-  const fetcher = async () => {
-    const app = initializeApp(firebaseConfig);
+  const [logins,setLogins]= useState<Login[]>([])
+  useEffect(() => {
+    let app;
+    try {
+      app = getApp();
+    } catch (error) {
+      app = initializeApp(firebaseConfig);
+    }
     const db = getFirestore(app);
-    const loginCollection = collection(db, 'Login');
-    const loginSnapshot = await getDocs(loginCollection);
-    const loginList = loginSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return new Login (
-        data.id,
-        data.username,
-        data.password,
-    );
-    });
-    return loginList;
-  };
+    const fetchData = async () => {
+      try {
+        const loginCollection = collection(db, "Login");
+        const loginSnapshot = await getDocs(loginCollection);
+        const loginList = loginSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return new Login(
+            doc.id,
+            data.username,
+            data.password,
+            
+          );
+        });
+        setLogins(loginList);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+    fetchData();
+    // const interval = setInterval(() => {
+    //   fetchData(); // Gọi lại fetchData sau mỗi 20 giây
+    // }, 3000);
 
-  const { data: logins, error } = useSWR('fetchLogins', fetcher);
+    // return () => {
+    //   clearInterval(interval); // Xóa interval khi component bị unmount
+    // };
+  }, []);
 
-  return {
-    logins,
-    isLoading: !error && !logins,
-    isError: error
-  };
+
+  return logins
+    
+ 
 }

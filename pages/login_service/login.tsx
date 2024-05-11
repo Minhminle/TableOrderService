@@ -8,23 +8,25 @@ import Cookies from 'js-cookie';
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { logins } = useFetchLogin();
+  const logins = useFetchLogin();
 
   const handleLogin = async () => {
-    const user = logins?.find((login) => login.username === username);
-    console.log(logins?.find((a)=>a.password))  
-    if (user) {
-      const isPasswordMatch = await compare(password, user.password);
-      if (isPasswordMatch) {
-        router.push("/ad_service/manage");
-      } else {
-        alert("Username or password is incorrect");
-      }
+  const user = logins?.find((login) => login.username === username);
+  console.log(password)
+  if (user) {
+    const isPasswordMatch = await compare(password, user.password);
+    if (isPasswordMatch) {
+   
+      Cookies.set('user_id', user.id);
+      Cookies.remove(user.id)
+      router.push("/ad_service/manage");
     } else {
       alert("Username or password is incorrect");
     }
-  };
-
+  } else {
+    alert("Username or password is incorrect");
+  }
+};
   const clicktoSignin = () => {
     router.push("/login_service/signin");
   };
