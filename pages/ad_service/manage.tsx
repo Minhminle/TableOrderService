@@ -66,7 +66,7 @@ const ManageTable = () => {
 
   const fetchedMenus = useFetchMenus();
 
-  // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
   // let app;
   // try {
   //   app = getApp();
@@ -74,13 +74,11 @@ const ManageTable = () => {
   //   // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
   //   app = initializeApp(firebaseConfig);
   // }
-  const app = initializeApp(firebaseConfig);
 
-  // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
-  const firestore = getFirestore(app);
-
-  // const app = initializeApp(firebaseConfig);
+  // // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   // const firestore = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const firestore = getFirestore(app);
 
   const [value, setValue] = React.useState<number | number[]>(1);
   const [menus, setMenus] = useState<Menu[]>([]);

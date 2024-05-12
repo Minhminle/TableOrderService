@@ -117,7 +117,7 @@ export function useFetchOrderHandle() {
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
 
   useEffect(() => {
-    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
     // let app;
     // try {
     //   app = getApp();

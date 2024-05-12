@@ -26,6 +26,7 @@ export function useFetchLogin() {
     // const db = getFirestore(app);
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
     const fetchData = async () => {
       try {
         const loginCollection = collection(db, "Login");

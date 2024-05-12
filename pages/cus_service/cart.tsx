@@ -29,20 +29,17 @@ const Cart = () => {
     appId: "1:723306684078:web:ca7f0fcc45dbc2ec02173f",
     measurementId: "G-QSTWZS9F78",
   };
-  // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
-  // let app;
-  // try {
-  //   app = getApp();
-  // } catch (error) {
-  //   // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
-  //   app = initializeApp(firebaseConfig);
-  // }
-  const app = initializeApp(firebaseConfig);
+  // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+  let app;
+  try {
+    app = getApp();
+  } catch (error) {
+    // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+    app = initializeApp(firebaseConfig);
+  }
 
   // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
   const firestore = getFirestore(app);
-  // const app = initializeApp(firebaseConfig);
-  // const firestore = getFirestore(app);
   const router = useRouter();
   const [note, setNote] = useState(""); // State để lưu trữ giá trị ghi chú
   const [products, setProducts] = useState<

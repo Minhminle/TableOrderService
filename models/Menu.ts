@@ -30,7 +30,7 @@ export class Menu {
 export function useFetchMenus() {
   const [menus, setMenus] = useState<Menu[]>([]);
   useEffect(() => {
-    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
     // let app;
     // try {
     //   app = getApp();
@@ -39,7 +39,8 @@ export function useFetchMenus() {
     //   app = initializeApp(firebaseConfig);
     // }
 
-    // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+    // // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
+    // const db = getFirestore(app);
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 

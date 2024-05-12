@@ -28,7 +28,7 @@ export function useFetchTables() {
   const [tables, setTables] = useState<Table[]>([]);
 
   useEffect(() => {
-    // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
+    // // Kiểm tra xem ứng dụng Firebase đã tồn tại chưa
     // let app;
     // try {
     //   app = getApp();
@@ -38,8 +38,6 @@ export function useFetchTables() {
     // }
     // // Sử dụng ứng dụng Firebase đã khởi tạo để tạo Firestore
     // const firestore = getFirestore(app);
-    // // const app = initializeApp(firebaseConfig);
-    // // const firestore = getFirestore(app);
 
     // const db = getFirestore(app);
     const app = initializeApp(firebaseConfig);
