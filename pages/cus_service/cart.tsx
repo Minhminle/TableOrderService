@@ -158,6 +158,27 @@ const Cart = () => {
       tableId = firstProduct ? firstProduct.tableId : "";
     }
 
+    let app;
+    try {
+      app = getApp();
+    } catch (error) {
+      // Ứng dụng Firebase chưa tồn tại, hãy khởi tạo mới
+      app = initializeApp(firebaseConfig);
+    }
+    const db = getFirestore(app);
+
+    // Truy vấn để lấy tên của bàn từ ID
+    const tableRef = doc(db, "Tables", tableId);
+    const tableDoc = await getDoc(tableRef);
+    const tableStatus = tableDoc.data()?.status || false;
+
+    if (tableStatus === true) {
+      alert(
+        "Bàn đang có đơn hàng. Vui lòng thanh toán trước khi đặt đơn hàng mới."
+      );
+      return;
+    }
+
     const order = {
       paymentStatus: false,
       tableId: tableId,
