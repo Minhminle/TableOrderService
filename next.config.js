@@ -1,6 +1,6 @@
 const nextConfig = {
   reactStrictMode: true,
-  output: "export",
+  distDir: ".next", // Thay đổi thư mục xuất ra thành .out
   images: {
     unoptimized: true,
   },
